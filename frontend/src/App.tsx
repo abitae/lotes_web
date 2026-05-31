@@ -10,13 +10,18 @@ import { AppProvider, useApp } from "./context/AppContext";
 // Public Pages
 import { Home } from "./pages/public/Home";
 import { Catalog } from "./pages/public/Catalog";
+import { ProjectDetail } from "./pages/public/ProjectDetail";
 import { Nosotros } from "./pages/public/Nosotros";
 import { Contacto } from "./pages/public/Contacto";
 
 // Admin Pages
 import { DashboardOverview } from "./pages/admin/DashboardOverview";
 import { MultimediaManagement } from "./pages/admin/MultimediaManagement";
+import { ContactFormsManagement } from "./pages/admin/ContactFormsManagement";
+import { CorporateChannelsManagement } from "./pages/admin/CorporateChannelsManagement";
+import { FaqManagement } from "./pages/admin/FaqManagement";
 import { AdminLogin } from "./pages/admin/AdminLogin";
+import { SiteHead } from "./components/SiteHead";
 
 // Layout components
 import { Navbar } from "./components/layout/Navbar";
@@ -124,6 +129,7 @@ export default function App() {
   return (
     <AppProvider>
       <HashRouter>
+        <SiteHead />
         <ScrollToTop />
         <Routes>
           <Route
@@ -139,6 +145,14 @@ export default function App() {
             element={
               <PublicLayout>
                 <Catalog />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/catalog/:id"
+            element={
+              <PublicLayout>
+                <ProjectDetail />
               </PublicLayout>
             }
           />
@@ -174,6 +188,30 @@ export default function App() {
             element={
               <ProtectedAdmin>
                 <MultimediaManagement />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/forms"
+            element={
+              <ProtectedAdmin>
+                <ContactFormsManagement />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/channels"
+            element={
+              <ProtectedAdmin>
+                <CorporateChannelsManagement />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/faq"
+            element={
+              <ProtectedAdmin>
+                <FaqManagement />
               </ProtectedAdmin>
             }
           />

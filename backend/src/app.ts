@@ -9,6 +9,11 @@ import testimonialsRoutes from "./routes/testimonials.routes.js";
 import inquiriesRoutes from "./routes/inquiries.routes.js";
 import statsRoutes from "./routes/stats.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import siteSettingsRoutes from "./routes/siteSettings.routes.js";
+import guaranteesRoutes from "./routes/guarantees.routes.js";
+import contactFormsRoutes from "./routes/contactForms.routes.js";
+import channelsRoutes from "./routes/channels.routes.js";
+import faqsRoutes from "./routes/faqs.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +36,11 @@ app.use("/api/testimonials", testimonialsRoutes);
 app.use("/api/inquiries", inquiriesRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/site-settings", siteSettingsRoutes);
+app.use("/api/guarantees", guaranteesRoutes);
+app.use("/api/contact-forms", contactFormsRoutes);
+app.use("/api/channels", channelsRoutes);
+app.use("/api/faqs", faqsRoutes);
 
 app.use(errorHandler);
 

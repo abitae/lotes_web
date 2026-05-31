@@ -4,10 +4,28 @@
  */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { Project, Banner, Testimonial, Inquiry, DashboardStats } from "../types";
+import {
+  Project,
+  Banner,
+  Testimonial,
+  Inquiry,
+  DashboardStats,
+  SiteSettings,
+  GuaranteesData,
+  ContactFormConfig,
+  CorporateChannel,
+  FaqItem,
+  GuaranteeItem,
+  GuaranteeSection,
+} from "../types";
 import { api } from "../api";
 import { getAuthToken, setAuthToken, setAdminEmail, getAdminEmail } from "../api/client";
 import { env } from "../config/env";
+import {
+  DEFAULT_SITE_SETTINGS,
+  DEFAULT_GUARANTEES,
+  DEFAULT_CONTACT_FORMS,
+} from "../config/siteDefaults";
 
 const EMPTY_STATS: DashboardStats = {
   totalProjects: 0,
@@ -24,6 +42,11 @@ interface AppContextType {
   testimonials: Testimonial[];
   inquiries: Inquiry[];
   stats: DashboardStats;
+  siteSettings: SiteSettings | null;
+  guarantees: GuaranteesData | null;
+  contactForms: ContactFormConfig[];
+  channels: CorporateChannel[];
+  faqs: FaqItem[];
   loading: boolean;
   adminLoading: boolean;
   error: string | null;
@@ -41,6 +64,18 @@ interface AppContextType {
   addTestimonial: (testimonial: Omit<Testimonial, "id">) => Promise<void>;
   editTestimonial: (id: string, testimonial: Partial<Testimonial>) => Promise<void>;
   deleteTestimonial: (id: string) => Promise<void>;
+  updateSiteSettings: (data: Partial<SiteSettings>) => Promise<void>;
+  updateGuaranteeSection: (data: Partial<GuaranteeSection>) => Promise<void>;
+  addGuaranteeItem: (item: Omit<GuaranteeItem, "id">) => Promise<void>;
+  updateGuaranteeItem: (id: string, data: Partial<GuaranteeItem>) => Promise<void>;
+  deleteGuaranteeItem: (id: string) => Promise<void>;
+  updateContactForm: (slug: string, data: Partial<ContactFormConfig>) => Promise<void>;
+  addChannel: (channel: Omit<CorporateChannel, "id">) => Promise<void>;
+  updateChannel: (id: string, data: Partial<CorporateChannel>) => Promise<void>;
+  deleteChannel: (id: string) => Promise<void>;
+  addFaq: (faq: Omit<FaqItem, "id">) => Promise<void>;
+  updateFaq: (id: string, data: Partial<FaqItem>) => Promise<void>;
+  deleteFaq: (id: string) => Promise<void>;
   getStats: () => DashboardStats;
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -59,24 +94,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [stats, setStats] = useState<DashboardStats>(EMPTY_STATS);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [guarantees, setGuarantees] = useState<GuaranteesData | null>(null);
+  const [contactForms, setContactForms] = useState<ContactFormConfig[]>(DEFAULT_CONTACT_FORMS);
+  const [channels, setChannels] = useState<CorporateChannel[]>([]);
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminLoading, setAdminLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAuthToken());
   const [adminEmail, setAdminEmailState] = useState<string | null>(() => getAdminEmail());
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
   useEffect(() => {
     localStorage.setItem(env.themeStorageKey, theme);
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    if (theme === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
   }, [theme]);
 
   const clearError = () => setError(null);
@@ -88,23 +123,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const loadPublicData = useCallback(async () => {
-    const [projectsData, bannersData, testimonialsData] = await Promise.all([
+    const results = await Promise.allSettled([
       api.getProjects(),
       api.getBanners(),
       api.getTestimonials(),
+      api.getSiteSettings(),
+      api.getGuarantees(),
+      api.getContactForms(),
+      api.getChannels(),
+      api.getFaqs(),
     ]);
-    setProjects(projectsData);
-    setBanners(bannersData);
-    setTestimonials(testimonialsData);
+
+    if (results[0].status === "fulfilled") setProjects(results[0].value);
+    if (results[1].status === "fulfilled") setBanners(results[1].value);
+    if (results[2].status === "fulfilled") setTestimonials(results[2].value);
+    if (results[3].status === "fulfilled") setSiteSettings(results[3].value);
+    if (results[4].status === "fulfilled") setGuarantees(results[4].value);
+    if (results[5].status === "fulfilled") setContactForms(results[5].value);
+    if (results[6].status === "fulfilled") setChannels(results[6].value);
+    if (results[7].status === "fulfilled") setFaqs(results[7].value);
+
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length === results.length) {
+      throw new Error("Error al cargar datos del portal");
+    }
   }, []);
 
   const loadAdminData = useCallback(async () => {
     setAdminLoading(true);
     try {
-      const [inquiriesData, statsData] = await Promise.all([
-        api.getInquiries(),
-        api.getStats(),
-      ]);
+      const [inquiriesData, statsData] = await Promise.all([api.getInquiries(), api.getStats()]);
       setInquiries(inquiriesData);
       setStats(statsData);
     } finally {
@@ -226,6 +274,78 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTestimonials((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const updateSiteSettings = async (data: Partial<SiteSettings>) => {
+    const updated = await api.updateSiteSettings(data);
+    setSiteSettings(updated);
+  };
+
+  const updateGuaranteeSection = async (data: Partial<GuaranteeSection>) => {
+    const updated = await api.updateGuaranteeSection(data);
+    setGuarantees((prev) => ({
+      section: updated,
+      items: prev?.items ?? DEFAULT_GUARANTEES.items,
+    }));
+  };
+
+  const addGuaranteeItem = async (item: Omit<GuaranteeItem, "id">) => {
+    const created = await api.createGuaranteeItem(item);
+    setGuarantees((prev) => ({
+      section: prev?.section ?? DEFAULT_GUARANTEES.section,
+      items: [...(prev?.items ?? []), created],
+    }));
+  };
+
+  const updateGuaranteeItem = async (id: string, data: Partial<GuaranteeItem>) => {
+    const updated = await api.updateGuaranteeItem(id, data);
+    setGuarantees((prev) => ({
+      section: prev?.section ?? DEFAULT_GUARANTEES.section,
+      items: (prev?.items ?? []).map((i) => (i.id === id ? updated : i)),
+    }));
+  };
+
+  const deleteGuaranteeItem = async (id: string) => {
+    await api.deleteGuaranteeItem(id);
+    setGuarantees((prev) => ({
+      section: prev?.section ?? DEFAULT_GUARANTEES.section,
+      items: (prev?.items ?? []).filter((i) => i.id !== id),
+    }));
+  };
+
+  const updateContactForm = async (slug: string, data: Partial<ContactFormConfig>) => {
+    const updated = await api.updateContactForm(slug, data);
+    setContactForms((prev) => prev.map((f) => (f.slug === slug ? updated : f)));
+  };
+
+  const addChannel = async (channel: Omit<CorporateChannel, "id">) => {
+    const created = await api.createChannel(channel);
+    setChannels((prev) => [...prev, created]);
+  };
+
+  const updateChannel = async (id: string, data: Partial<CorporateChannel>) => {
+    const updated = await api.updateChannel(id, data);
+    setChannels((prev) => prev.map((c) => (c.id === id ? updated : c)));
+  };
+
+  const deleteChannel = async (id: string) => {
+    await api.deleteChannel(id);
+    setChannels((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const addFaq = async (faq: Omit<FaqItem, "id">) => {
+    const created = await api.createFaq(faq);
+    setFaqs((prev) => [...prev, created]);
+  };
+
+  const updateFaq = async (id: string, data: Partial<FaqItem>) => {
+    const updated = await api.updateFaq(id, data);
+    setFaqs((prev) => prev.map((f) => (f.id === id ? updated : f)));
+  };
+
+  const deleteFaq = async (id: string) => {
+    await api.deleteFaq(id);
+    setFaqs((prev) => prev.filter((f) => f.id !== id));
+  };
+
   const getStats = () => stats;
 
   return (
@@ -236,6 +356,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         testimonials,
         inquiries,
         stats,
+        siteSettings,
+        guarantees,
+        contactForms,
+        channels,
+        faqs,
         loading,
         adminLoading,
         error,
@@ -253,6 +378,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addTestimonial,
         editTestimonial,
         deleteTestimonial,
+        updateSiteSettings,
+        updateGuaranteeSection,
+        addGuaranteeItem,
+        updateGuaranteeItem,
+        deleteGuaranteeItem,
+        updateContactForm,
+        addChannel,
+        updateChannel,
+        deleteChannel,
+        addFaq,
+        updateFaq,
+        deleteFaq,
         getStats,
         theme,
         toggleTheme,

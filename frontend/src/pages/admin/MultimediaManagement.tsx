@@ -20,9 +20,12 @@ import {
   Megaphone,
   UserCheck
 } from "lucide-react";
+import { SiteIdentityTab } from "./SiteIdentityTab";
+import { GuaranteesTab } from "./GuaranteesTab";
 
 export const MultimediaManagement: React.FC = () => {
   const { banners, testimonials, updateBanner, addBanner, deleteBanner, addTestimonial, deleteTestimonial } = useApp();
+  const [activeTab, setActiveTab] = useState<"banners" | "testimonials" | "identity" | "guarantees">("banners");
 
   // Selected banner for editing toggles
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
@@ -129,15 +132,36 @@ export const MultimediaManagement: React.FC = () => {
             GESTIÓN MULTIMEDIA Y TESTIMONIOS
           </h1>
           <span className="font-mono text-[10px] text-[var(--text-s)] block mt-1 uppercase tracking-wide">
-            Administre las portadas publicitarias de la web y el registro de reseñas de los compradores en caliente
+            Portadas, testimonios, identidad del sitio y garantías de compra
           </span>
         </div>
       </section>
 
-      {/* Grid: Left Column Banners (Span 12 -> 6) and Right Column Testimonials (Span 12 -> 6) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="flex flex-wrap gap-2">
+        {([
+          ["banners", "Portadas"],
+          ["testimonials", "Testimonios"],
+          ["identity", "Identidad"],
+          ["guarantees", "Garantías"],
+        ] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id)}
+            className={`text-[10px] font-bold uppercase px-3 py-1.5 rounded ${activeTab === id ? "bg-[var(--accent)] text-white" : "border border-[var(--border)] text-[var(--text-s)]"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "identity" && <SiteIdentityTab />}
+      {activeTab === "guarantees" && <GuaranteesTab />}
+
+      {(activeTab === "banners" || activeTab === "testimonials") && (
+      <div className="grid grid-cols-1 gap-8 max-w-4xl">
         
-        {/* A. BANNERS PUBLICITARIOS MANAGER */}
+        {activeTab === "banners" && (
         <section className="admin-card border p-6 rounded-xl flex flex-col justify-start space-y-5 shadow">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <span className="font-sans font-extrabold text-xs uppercase text-[var(--text-p)] tracking-wider flex items-center gap-1.5 font-mono">
@@ -353,8 +377,9 @@ export const MultimediaManagement: React.FC = () => {
             })}
           </div>
         </section>
+        )}
 
-        {/* B. TESTIMONIOS Y REVIEWS MANAGER */}
+        {activeTab === "testimonials" && (
         <section className="admin-card border p-6 rounded-xl flex flex-col justify-start space-y-5 shadow">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <span className="font-sans font-extrabold text-xs uppercase text-[var(--text-p)] tracking-wider flex items-center gap-1.5 font-mono">
@@ -428,7 +453,9 @@ export const MultimediaManagement: React.FC = () => {
             ))}
           </div>
         </section>
+        )}
       </div>
+      )}
 
       {/* MODAL 1: CREATE BANNER FORM */}
       {isBannerModalOpen && (

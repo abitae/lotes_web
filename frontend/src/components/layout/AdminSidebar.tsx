@@ -11,7 +11,10 @@ import {
   HardDriveUpload,
   ArrowUpRight,
   Sparkles,
-  Inbox
+  Inbox,
+  FileText,
+  Phone,
+  HelpCircle,
 } from "lucide-react";
 
 export const AdminSidebar: React.FC = () => {
@@ -85,6 +88,54 @@ export const AdminSidebar: React.FC = () => {
           <span className="inline-flex items-center text-[var(--accent)] font-mono text-[8px]">
             <Sparkles className="w-2.5 h-2.5" />
           </span>
+        </NavLink>
+
+        <NavLink
+          to="/admin/forms"
+          className={({ isActive }) =>
+            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
+              isActive
+                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
+                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
+            }`
+          }
+        >
+          <div className="flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 shrink-0" />
+            <span>Formularios</span>
+          </div>
+        </NavLink>
+
+        <NavLink
+          to="/admin/channels"
+          className={({ isActive }) =>
+            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
+              isActive
+                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
+                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
+            }`
+          }
+        >
+          <div className="flex items-center gap-2">
+            <Phone className="w-3.5 h-3.5 shrink-0" />
+            <span>Canales Corporativos</span>
+          </div>
+        </NavLink>
+
+        <NavLink
+          to="/admin/faq"
+          className={({ isActive }) =>
+            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
+              isActive
+                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
+                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
+            }`
+          }
+        >
+          <div className="flex items-center gap-2">
+            <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>Preguntas Frecuentes</span>
+          </div>
         </NavLink>
       </nav>
 

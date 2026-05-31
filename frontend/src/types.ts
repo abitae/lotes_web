@@ -12,6 +12,8 @@ export interface Project {
   title: string;
   location: string;
   region: string;
+  province?: string;
+  district?: string;
   projectType: ProjectType;
   surface?: number;
   priceSoles: number;
@@ -22,6 +24,7 @@ export interface Project {
     lat: number;
     lng: number;
   };
+  mapsUrl?: string;
   description: string;
   features: string[];
   featured?: boolean;
@@ -69,4 +72,74 @@ export interface DashboardStats {
   totalLotsSold: number;
   monthlyLeadsTrend: { month: string; leads: number }[];
   projectTypeDistribution: { name: string; value: number }[];
+}
+
+export type ChannelType = "address" | "phone" | "email" | "whatsapp";
+
+export interface SiteSettings {
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  siteName: string;
+  siteTagline: string;
+  browserTitle: string;
+  footerTagline: string;
+  footerDescription: string;
+}
+
+export interface GuaranteeSection {
+  eyebrow: string;
+  heading: string;
+  description: string;
+  backgroundImageUrl: string;
+}
+
+export interface GuaranteeItem {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface GuaranteesData {
+  section: GuaranteeSection;
+  items: GuaranteeItem[];
+}
+
+export interface ContactFormBullet {
+  text: string;
+}
+
+export interface ContactFormConfig {
+  slug: string;
+  formTitle: string;
+  formSubtitle: string;
+  submitLabel: string;
+  successTitle: string;
+  successMessage: string;
+  defaultMessage: string;
+  defaultProjectInterest: string;
+  sectionEyebrow?: string | null;
+  sectionHeading?: string | null;
+  sectionDescription?: string | null;
+  bullets?: ContactFormBullet[] | null;
+}
+
+export interface CorporateChannel {
+  id: string;
+  channelType: ChannelType;
+  label: string;
+  value: string;
+  extraInfo?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
 }

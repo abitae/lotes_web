@@ -5,13 +5,17 @@
 
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, Landmark, Compass, CircleHelp, Users, ShieldAlert, Sun, Moon } from "lucide-react";
+import { Menu, X, Compass, CircleHelp, Users, ShieldAlert, Sun, Moon } from "lucide-react";
 import { useApp } from "../../context/AppContext";
+import { DEFAULT_SITE_SETTINGS } from "../../config/siteDefaults";
+import { BrandLogo } from "../BrandLogo";
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { theme, toggleTheme } = useApp();
+  const { theme, toggleTheme, siteSettings } = useApp();
+  const settings = siteSettings ?? DEFAULT_SITE_SETTINGS;
+  const brandHasText = Boolean(settings.siteName?.trim() || settings.siteTagline?.trim());
   const location = useLocation();
 
   // Handle transparent to white background on scorll
@@ -44,18 +48,11 @@ export const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo Brand */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="p-1.5 bg-[var(--card-bg)] border border-[var(--border)] rounded text-[var(--accent)] group-hover:bg-[var(--border)] transition-all">
-              <Landmark className="w-4 h-4" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-sans font-extrabold text-sm tracking-wide text-[var(--text-p)] uppercase leading-none">
-                Lotes en Remate
-              </span>
-              <span className="font-mono text-[9px] text-[var(--accent)] tracking-widest uppercase font-semibold mt-0.5">
-                Inversión.pe
-              </span>
-            </div>
+          <Link
+            to="/"
+            className={`group min-w-0 shrink ${brandHasText ? "max-w-[55%] sm:max-w-none" : "max-w-[72%] sm:max-w-[320px]"}`}
+          >
+            <BrandLogo settings={settings} variant="navbar" />
           </Link>
 
           {/* Desktop NavLinks */}
@@ -64,7 +61,7 @@ export const Navbar: React.FC = () => {
               to="/"
               className={({ isActive }) =>
                 `text-xs font-semibold tracking-wide transition-colors ${
-                  isActive ? "text-[var(--accent)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
+                  isActive ? "text-[var(--accent-text)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
                 }`
               }
             >
@@ -74,7 +71,7 @@ export const Navbar: React.FC = () => {
               to="/catalog"
               className={({ isActive }) =>
                 `text-xs font-semibold tracking-wide transition-colors ${
-                  isActive ? "text-[var(--accent)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
+                  isActive ? "text-[var(--accent-text)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
                 }`
               }
             >
@@ -84,7 +81,7 @@ export const Navbar: React.FC = () => {
               to="/about"
               className={({ isActive }) =>
                 `text-xs font-semibold tracking-wide transition-colors ${
-                  isActive ? "text-[var(--accent)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
+                  isActive ? "text-[var(--accent-text)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
                 }`
               }
             >
@@ -94,7 +91,7 @@ export const Navbar: React.FC = () => {
               to="/contact"
               className={({ isActive }) =>
                 `text-xs font-semibold tracking-wide transition-colors ${
-                  isActive ? "text-[var(--accent)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
+                  isActive ? "text-[var(--accent-text)] font-extrabold" : "text-[var(--text-s)] hover:text-[var(--text-p)]"
                 }`
               }
             >
@@ -168,12 +165,12 @@ export const Navbar: React.FC = () => {
             to="/"
             className={({ isActive }) =>
               `block px-3 py-2 rounded text-xs font-semibold transition-colors ${
-                isActive ? "bg-[var(--border)] text-[var(--accent)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
+                isActive ? "bg-[var(--border)] text-[var(--accent-text)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
               }`
             }
           >
             <span className="flex items-center gap-2">
-              <Landmark className="w-4 h-4 text-[var(--accent)]" />
+              <Compass className="w-4 h-4 text-[var(--accent-text)]" />
               Inicio
             </span>
           </NavLink>
@@ -181,12 +178,12 @@ export const Navbar: React.FC = () => {
             to="/catalog"
             className={({ isActive }) =>
               `block px-3 py-2 rounded text-xs font-semibold transition-colors ${
-                isActive ? "bg-[var(--border)] text-[var(--accent)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
+                isActive ? "bg-[var(--border)] text-[var(--accent-text)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
               }`
             }
           >
             <span className="flex items-center gap-2">
-              <Compass className="w-4 h-4 text-[var(--accent)]" />
+              <Compass className="w-4 h-4 text-[var(--accent-text)]" />
               Proyectos
             </span>
           </NavLink>
@@ -194,12 +191,12 @@ export const Navbar: React.FC = () => {
             to="/about"
             className={({ isActive }) =>
               `block px-3 py-2 rounded text-xs font-semibold transition-colors ${
-                isActive ? "bg-[var(--border)] text-[var(--accent)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
+                isActive ? "bg-[var(--border)] text-[var(--accent-text)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
               }`
             }
           >
             <span className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-[var(--accent)]" />
+              <Users className="w-4 h-4 text-[var(--accent-text)]" />
               Nosotros
             </span>
           </NavLink>
@@ -207,12 +204,12 @@ export const Navbar: React.FC = () => {
             to="/contact"
             className={({ isActive }) =>
               `block px-3 py-2 rounded text-xs font-semibold transition-colors ${
-                isActive ? "bg-[var(--border)] text-[var(--accent)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
+                isActive ? "bg-[var(--border)] text-[var(--accent-text)]" : "text-[var(--text-s)] hover:bg-[var(--border)]/50"
               }`
             }
           >
             <span className="flex items-center gap-2">
-              <CircleHelp className="w-4 h-4 text-[var(--accent)]" />
+              <CircleHelp className="w-4 h-4 text-[var(--accent-text)]" />
               Contacto
             </span>
           </NavLink>

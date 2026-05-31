@@ -24,15 +24,35 @@ function mapProjectType(project: WebApiProject): ProjectType {
   return "Urbano";
 }
 
-function parseCoordinates(location: string | null | undefined): { lat: number; lng: number } {
-  if (!location) return { lat: -12, lng: -77 };
+function parseMapsData(project: WebApiProject): {
+  coordinates: { lat: number; lng: number };
+  mapsUrl?: string;
+} {
+  const mapsUrl = project.maps_url?.trim() || undefined;
+  const sources = [project.location?.trim(), mapsUrl].filter(Boolean) as string[];
 
-  const coordMatch = location.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
-  if (coordMatch) {
-    return { lat: Number(coordMatch[1]), lng: Number(coordMatch[2]) };
+  for (const raw of sources) {
+    const coordMatch = raw.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+    if (coordMatch) {
+      return {
+        coordinates: { lat: Number(coordMatch[1]), lng: Number(coordMatch[2]) },
+        mapsUrl: mapsUrl || (raw.includes("google.com/maps") ? raw : undefined),
+      };
+    }
+
+    if (raw.includes("google.com/maps") || raw.includes("maps.google.com")) {
+      const atMatch = raw.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if (atMatch) {
+        return {
+          coordinates: { lat: Number(atMatch[1]), lng: Number(atMatch[2]) },
+          mapsUrl: mapsUrl || raw,
+        };
+      }
+      return { coordinates: { lat: -12, lng: -77 }, mapsUrl: mapsUrl || raw };
+    }
   }
 
-  return { lat: -12, lng: -77 };
+  return { coordinates: { lat: -12, lng: -77 }, mapsUrl };
 }
 
 function resolveLocationLabel(project: WebApiProject): string {
@@ -65,27 +85,39 @@ function resolveImageUrl(project: WebApiProject): string {
   return PLACEHOLDER_IMAGE;
 }
 
+function resolveImages(project: WebApiProject): { url: string; title: string }[] | undefined {
+  const gallery = (project.images ?? [])
+    .filter((img) => img.url?.trim())
+    .map((img) => ({ url: img.url.trim(), title: img.title?.trim() || "Imagen del proyecto" }));
+  return gallery.length > 0 ? gallery : undefined;
+}
+
 export function mapWebProjectToProject(project: WebApiProject): Project {
   const availableLots = project.free_lots_count ?? 0;
   const totalLots = project.total_lots ?? project.lots_count ?? availableLots;
   const imageUrl = resolveImageUrl(project);
+  const { coordinates, mapsUrl } = parseMapsData(project);
 
   return {
     id: String(project.id),
     title: project.name,
     location: resolveLocationLabel(project),
     region: resolveRegion(project),
+    province: project.province?.trim() || undefined,
+    district: project.district?.trim() || undefined,
     projectType: mapProjectType(project),
     surface: 0,
     priceSoles: Number(project.precio_web) || 0,
     priceDollars: 0,
     status: resolveStatus(availableLots),
     imageUrl,
-    coordinates: parseCoordinates(project.location),
+    coordinates,
+    mapsUrl,
     description: project.descripcion?.trim() || "",
     features: (project.blocks ?? []).filter(Boolean),
     featured: Boolean(imageUrl !== PLACEHOLDER_IMAGE && availableLots > 0),
     totalLots,
     availableLots,
+    images: resolveImages(project),
   };
 }

@@ -6,28 +6,34 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
+import { DEFAULT_GUARANTEES, getContactFormBySlug } from "../../config/siteDefaults";
+import { formatProjectInterestLabel, formatProjectLocation } from "../../utils/projects";
+import { GuaranteeIcon, renderInlineBold } from "../../utils/siteContent";
 import {
   Compass,
   ArrowRight,
-  ShieldCheck,
-  TrendingUp,
   MapPin,
   CheckCircle,
-  Gem,
   ArrowBigLeft,
   ArrowBigRight,
-  MessageSquare,
   Sparkles,
   PhoneCall,
   UserCheck
 } from "lucide-react";
 
 export const Home: React.FC = () => {
-  const { banners, projects, testimonials, addInquiry } = useApp();
+  const { banners, projects, testimonials, addInquiry, guarantees, contactForms } = useApp();
+  const guaranteeData = guarantees ?? DEFAULT_GUARANTEES;
+  const contactForm = getContactFormBySlug(contactForms, "contact_consulta");
+  const activeGuaranteeItems = guaranteeData.items.filter((i) => i.isActive);
   const navigate = useNavigate();
 
-  // Proyectos destacados: imagen + lotes libres (máx. 6)
-  const featuredProjects = projects.filter((p) => p.featured).slice(0, 6);
+  // Proyectos en inicio: destacados o, si no hay, los primeros disponibles (máx. 6)
+  const featuredProjects = (
+    projects.some((p) => p.featured)
+      ? projects.filter((p) => p.featured)
+      : projects.filter((p) => p.status !== "Vendido")
+  ).slice(0, 6);
   
   // Active Banners Slider State
   const activeBanners = banners.filter((b) => b.isActive);
@@ -67,8 +73,8 @@ export const Home: React.FC = () => {
         fullName,
         phone,
         email,
-        projectInterest: projectInterest || "Consulta General de Lotes",
-        message: message || "Hola, deseo recibir información sobre remates de lotes disponibles.",
+        projectInterest: projectInterest || contactForm.defaultProjectInterest,
+        message: message || contactForm.defaultMessage,
       });
 
       setFormSuccess(true);
@@ -234,100 +240,134 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. FEATURED PROJECTS GIRD */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
-          <div className="space-y-2">
-            <span className="font-mono text-xs text-amber-700 tracking-widest uppercase font-semibold block">
-              Inversión Recomendada
-            </span>
-            <h2 className="text-3xl font-sans font-extrabold text-emerald-950 leading-tight">
-              Proyectos Destacados en Remate
-            </h2>
-            <p className="text-stone-500 text-sm max-w-xl font-light">
-              Terrenos estratégicos cuidadosamente seleccionados por el equipo legal y financiero de Lotesenremate.pe con alta plusvalía predial.
-            </p>
-          </div>
-          <Link
-            to="/catalog"
-            className="group inline-flex items-center gap-1.5 fs-sm text-emerald-850 font-semibold border-b-2 border-emerald-800 hover:border-emerald-600 pb-0.5 transition-colors"
-          >
-            Ver todos los lotes
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
+      {/* 3. FEATURED PROJECTS */}
+      <section className="relative border-y border-[var(--border)] bg-[var(--card-bg)] py-16 md:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/[0.04] via-transparent to-amber-500/[0.03] pointer-events-none" />
 
-        {/* Projects Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredProjects.map((project) => (
-            <article
-              key={project.id}
-              className="bg-white rounded-xl border border-stone-200/60 overflow-hidden premium-card-shadow premium-card-hover flex flex-col group"
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12 md:mb-14">
+            <div className="space-y-3 max-w-2xl">
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs text-[var(--accent-text)] tracking-widest uppercase font-semibold">
+                <Compass className="w-3.5 h-3.5" />
+                Catálogo
+              </span>
+              <h2 className="text-3xl md:text-4xl font-sans font-extrabold text-[var(--text-p)] leading-tight tracking-tight">
+                Conoce nuestros Proyectos
+              </h2>
+              <p className="text-[var(--text-s)] text-sm leading-relaxed font-light">
+                Terrenos con título SUNARP, ubicaciones estratégicas y opciones de financiamiento directo. Elige el proyecto que mejor se adapte a tu inversión.
+              </p>
+            </div>
+            <Link
+              to="/catalog"
+              className="group shrink-0 inline-flex items-center gap-2 bg-[var(--accent)] hover:bg-[#008c4a] text-white font-sans font-semibold text-xs px-5 py-3 rounded-lg transition-all shadow-md hover:-translate-y-0.5"
             >
-              {/* Image & Badge Cover */}
-              <div className="relative h-56 w-full bg-stone-100 overflow-hidden shrink-0">
-                <img
-                  src={project.imageUrl}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute top-4 left-4 flex gap-1.5">
-                  <span className={`text-[10px] font-sans font-bold uppercase tracking-wider px-3 py-1 bg-stone-900 border border-stone-850 rounded-full text-stone-50`}>
-                    {project.projectType}
-                  </span>
-                  <span className={`text-[10px] font-sans font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
-                    project.status === "Pre-venta"
-                      ? "bg-amber-100 text-amber-800 border border-amber-200"
-                      : project.status === "Inmediata"
-                      ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                      : "bg-indigo-100 text-indigo-800 border border-indigo-200"
-                  }`}>
-                    {project.status}
-                  </span>
-                </div>
-                {project.surface != null && project.surface > 0 && (
-                  <div className="absolute bottom-4 right-4 bg-stone-950/85 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-3xs text-stone-100">
-                    {project.surface} m²
-                  </div>
-                )}
-              </div>
+              Ver catálogo completo
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
 
-              {/* Main Info */}
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1 text-2xs font-mono text-stone-400 uppercase tracking-widest">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span>{project.location}</span>
-                  </div>
-                  <h3 className="font-sans font-bold text-lg text-stone-900 group-hover:text-emerald-950 leading-snug transition-colors line-clamp-1">
-                    {project.title}
-                  </h3>
-                  <p className="text-stone-500 text-xs font-light line-clamp-2 leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-stone-100 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-stone-400 font-mono tracking-widest uppercase">
-                      Desde
-                    </span>
-                    <span className="text-xl font-sans font-extrabold text-emerald-950">
-                      S/. {project.priceSoles.toLocaleString()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/catalog?id=${project.id}`)}
-                    className="inline-flex items-center gap-1.5 bg-stone-900 text-stone-50 hover:bg-emerald-950 text-[11px] font-sans font-bold py-2.5 px-3.5 rounded-lg transition-colors shadow-sm"
+          {featuredProjects.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--bg)] px-6 py-14 text-center space-y-4">
+              <Compass className="w-10 h-10 text-[var(--accent-text)] mx-auto opacity-80" />
+              <p className="text-[var(--text-s)] text-sm font-light max-w-md mx-auto">
+                Pronto publicaremos nuevos proyectos. Mientras tanto, explora el catálogo completo.
+              </p>
+              <Link
+                to="/catalog"
+                className="inline-flex items-center gap-1.5 text-[var(--accent-text)] font-semibold text-sm border-b-2 border-[var(--accent-text)]/40 hover:border-[var(--accent-text)] pb-0.5 transition-colors"
+              >
+                Ir al catálogo
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {featuredProjects.map((project) => {
+                const locationLabel = formatProjectLocation(project);
+                return (
+                  <article
+                    key={project.id}
+                    className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] overflow-hidden premium-card-shadow premium-card-hover flex flex-col group"
                   >
-                    Detalles
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
+                    <div className="relative h-52 sm:h-56 w-full bg-[var(--border)]/30 overflow-hidden shrink-0">
+                      <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                        <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-1 bg-black/70 backdrop-blur-sm border border-white/15 rounded-full text-white">
+                          {project.projectType}
+                        </span>
+                        <span
+                          className={`text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm ${
+                            project.status === "Pre-venta"
+                              ? "bg-amber-100/95 text-amber-900 border border-amber-200"
+                              : project.status === "Inmediata"
+                              ? "bg-emerald-100/95 text-emerald-900 border border-emerald-200"
+                              : "bg-white/90 text-stone-800 border border-stone-200"
+                          }`}
+                        >
+                          {project.status}
+                        </span>
+                      </div>
+                      {project.availableLots > 0 && (
+                        <div className="absolute bottom-3 left-3 bg-[var(--accent)] text-white px-2.5 py-1 rounded-md font-mono text-[10px] font-bold uppercase tracking-wide shadow-lg">
+                          {project.availableLots} lote{project.availableLots !== 1 ? "s" : ""} libre{project.availableLots !== 1 ? "s" : ""}
+                        </div>
+                      )}
+                      {project.surface != null && project.surface > 0 && (
+                        <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-[10px] text-white">
+                          {project.surface} m²
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
+                      <div className="space-y-2">
+                        {locationLabel && (
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-widest">
+                            <MapPin className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
+                            <span className="line-clamp-1">{locationLabel}</span>
+                          </div>
+                        )}
+                        <h3 className="font-sans font-bold text-lg text-[var(--text-p)] group-hover:text-[var(--accent-text)] leading-snug transition-colors line-clamp-2">
+                          {project.title}
+                        </h3>
+                        {project.description && (
+                          <p className="text-[var(--text-s)] text-xs font-light line-clamp-2 leading-relaxed">
+                            {project.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="pt-4 border-t border-[var(--border)] flex items-end justify-between gap-3">
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[10px] text-[var(--text-muted)] font-mono tracking-widest uppercase">
+                            Desde
+                          </span>
+                          <span className="text-xl font-sans font-extrabold text-[var(--accent-text)] truncate">
+                            {project.priceSoles > 0 ? `S/. ${project.priceSoles.toLocaleString()}` : "Consultar"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/catalog/${project.id}`)}
+                          className="shrink-0 inline-flex items-center gap-1.5 bg-[var(--text-p)] text-[var(--card-bg)] hover:bg-[var(--accent)] hover:text-white text-[11px] font-sans font-bold py-2.5 px-3.5 rounded-lg transition-colors shadow-sm"
+                        >
+                          Ver detalles
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -336,7 +376,7 @@ export const Home: React.FC = () => {
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0 select-none">
           <img
-            src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=1600"
+            src={guaranteeData.section.backgroundImageUrl}
             alt="Fondo de Garantías de Compra"
             className="w-full h-full object-cover filter brightness-[0.22] saturate-[0.8]"
             referrerPolicy="no-referrer"
@@ -347,52 +387,30 @@ export const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
             <span className="font-mono text-xs text-[var(--accent)] tracking-widest uppercase font-semibold block">
-              Garantías de Compra
+              {guaranteeData.section.eyebrow}
             </span>
             <h2 className="text-3xl font-sans font-extrabold text-[#fafafa] leading-tight">
-              ¿Por qué somos la mejor opción de inversión?
+              {guaranteeData.section.heading}
             </h2>
             <p className="text-[#a1a1aa] text-xs md:text-sm font-light leading-relaxed">
-              Respaldamos su depósito bancario a través de procesos registrales sólidos y convenios con notarías autorizadas del Perú.
+              {guaranteeData.section.description}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-black/60 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-2xl space-y-4 hover:border-[var(--accent)]/45 transition-all duration-300">
-              <div className="w-12 h-12 bg-[var(--accent)]/20 rounded-xl flex items-center justify-center text-[var(--accent)] border border-[var(--accent)]/30">
-                <ShieldCheck className="w-6 h-6" />
+            {activeGuaranteeItems.map((item, idx) => (
+            <div key={item.id} className={`bg-black/60 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-2xl space-y-4 hover:border-[var(--accent)]/45 transition-all duration-300 ${idx === 1 ? "hover:border-[#22c55e]/45" : ""}`}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${idx === 1 ? "bg-[#22c55e]/20 text-[#22c55e] border-[#22c55e]/30" : "bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)]/30"}`}>
+                <GuaranteeIcon name={item.icon} className="w-6 h-6" />
               </div>
               <h3 className="font-sans font-bold text-base text-[#fafafa]">
-                100% Inscritos en SUNARP
+                {item.title}
               </h3>
               <p className="text-[#a1a1aa] text-xs font-light leading-relaxed">
-                Todas las propiedades constan con partidas registrales independientes, planos aprobados por municipalidades o gobiernos distritales habilitantes, y están libres de cargas.
+                {item.description}
               </p>
             </div>
-
-            <div className="bg-black/60 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-2xl space-y-4 hover:border-[#22c55e]/45 transition-all duration-300">
-              <div className="w-12 h-12 bg-[#22c55e]/20 rounded-xl flex items-center justify-center text-[#22c55e] border border-[#22c55e]/30">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="font-sans font-bold text-base text-[#fafafa]">
-                Alta Plusvalía Garantizada
-              </h3>
-              <p className="text-[#a1a1aa] text-xs font-light leading-relaxed">
-                Ubicados de forma estratégica en corredores de rápido crecimiento industrial, agropecuario, turístico y vial cercanos a aeropuertos, playas y puertos.
-              </p>
-            </div>
-
-            <div className="bg-black/60 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-2xl space-y-4 hover:border-[var(--accent)]/45 transition-all duration-300">
-              <div className="w-12 h-12 bg-[var(--accent)]/20 rounded-xl flex items-center justify-center text-[var(--accent)] border border-[var(--accent)]/30">
-                <Gem className="w-6 h-6" />
-              </div>
-              <h3 className="font-sans font-bold text-base text-[#fafafa]">
-                Crédito Directo Flex
-              </h3>
-              <p className="text-[#a1a1aa] text-xs font-light leading-relaxed">
-                Facilidades de financiamiento directo para que escoja el plan más cómodo según sus posibilidades. Adquiera su lote con firmas notariales simples de cuota inicial.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -457,45 +475,39 @@ export const Home: React.FC = () => {
       </section>
 
       {/* 6. CONTEXT LEAD INQUIRY FORM */}
-      <section className="bg-emerald-950 text-white py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute inset-x-0 bottom-0 top-1/2 bg-stone-950/20" />
+      <section className="surface-dark-emerald py-16 md:py-24 relative overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 top-1/2 bg-black/20" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Informative column */}
             <div className="space-y-6">
               <span className="font-mono text-xs text-amber-400 tracking-wider font-semibold uppercase block">
-                Comunícate hoy
+                {contactForm.sectionEyebrow}
               </span>
-              <h2 className="text-3xl sm:text-4xl font-sans font-extrabold tracking-tight leading-tight">
-                ¿Listo para asegurar tu estabilidad patrimonial?
+              <h2 className="text-3xl sm:text-4xl font-sans font-extrabold tracking-tight leading-tight text-white">
+                {contactForm.sectionHeading}
               </h2>
-              <p className="text-stone-300 text-xs sm:text-sm font-light leading-relaxed max-w-lg">
-                Rellena el formulario de solicitud de información inmediata. Nuestro equipo de asesores senior le enviará carpetas legales digitales con partidas registrales Sunarp de los lotes en 10 minutos por WhatsApp.
+              <p className="text-on-dark-muted text-xs sm:text-sm font-light leading-relaxed max-w-lg">
+                {contactForm.sectionDescription}
               </p>
 
-              <div className="space-y-4 pt-4 border-t border-emerald-900">
-                <div className="flex items-start gap-3 text-xs sm:text-sm">
+              <div className="space-y-4 pt-4 border-t border-on-dark">
+                {(contactForm.bullets ?? []).map((bullet, idx) => (
+                <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-white">
                   <CheckCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Información Veraz</strong>: Datos registrales directos y actualizados.
-                  </span>
+                  <span>{renderInlineBold(bullet.text)}</span>
                 </div>
-                <div className="flex items-start gap-3 text-xs sm:text-sm">
-                  <CheckCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Visitas organizadas los fines de semana</strong>: Movilidad ejecutiva privada gratuita desde Lima ida y vuelta.
-                  </span>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Form card column */}
             <div className="bg-white p-6 sm:p-10 rounded-2xl border border-stone-200 text-stone-900 premium-card-shadow">
               <h3 className="font-sans font-extrabold text-xl text-emerald-950 tracking-tight mb-2">
-                Solicitar Expedientes de Lotes
+                {contactForm.formTitle}
               </h3>
               <p className="text-xs text-stone-500 font-light mb-6">
-                Envíenos sus datos y recibirá un contacto inmediato telefónico.
+                {contactForm.formSubtitle}
               </p>
 
               {formSuccess ? (
@@ -504,10 +516,10 @@ export const Home: React.FC = () => {
                     <UserCheck className="w-6 h-6" />
                   </div>
                   <h4 className="font-sans font-extrabold text-sm uppercase">
-                    ¡Solicitud Recibida con Éxito!
+                    {contactForm.successTitle}
                   </h4>
                   <p className="text-xs font-light">
-                    Hemos registrado tu consulta correctamente. Un experto senior en lotes de remate se comunicará contigo vía WhatsApp en unos minutos.
+                    {contactForm.successMessage}
                   </p>
                 </div>
               ) : (
@@ -529,7 +541,7 @@ export const Home: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="block text-2xs font-mono font-bold tracking-wide uppercase text-stone-500">
-                        Número de Teléfono
+                        Teléfono / WhatsApp
                       </label>
                       <input
                         type="tel"
@@ -557,7 +569,7 @@ export const Home: React.FC = () => {
 
                   <div className="space-y-1">
                     <label className="block text-2xs font-mono font-bold tracking-wide uppercase text-stone-500">
-                      Proyecto de Preferencia
+                      Proyecto de Interés
                     </label>
                     <select
                       value={projectInterest}
@@ -565,21 +577,24 @@ export const Home: React.FC = () => {
                       className="w-full bg-stone-50 border border-stone-200 focus:border-emerald-800 focus:bg-white rounded-lg p-2.5 text-xs outline-none transition-colors"
                     >
                       <option value="">Seleccione un proyecto...</option>
-                      {projects.map((p) => (
-                        <option key={p.id} value={p.title}>
-                          {p.title} - ({p.location})
-                        </option>
-                      ))}
+                      {projects.map((p) => {
+                        const label = formatProjectInterestLabel(p);
+                        return (
+                          <option key={p.id} value={label}>
+                            {label}
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
 
                   <div className="space-y-1">
                     <label className="block text-2xs font-mono font-bold tracking-wide uppercase text-stone-500">
-                      Mensaje / Pregunta Breve
+                      Mensaje
                     </label>
                     <textarea
-                      rows={3}
-                      placeholder="Escriba aquí sus dudas respecto a visitas guiadas públicas, precio final, títulos..."
+                      rows={4}
+                      placeholder="Escriba su consulta..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       className="w-full bg-stone-50 border border-stone-200 focus:border-emerald-800 focus:bg-white rounded-lg p-2.5 text-xs outline-none transition-colors resize-none"
@@ -590,7 +605,7 @@ export const Home: React.FC = () => {
                     type="submit"
                     className="w-full bg-emerald-800 hover:bg-emerald-700 text-white font-sans font-extrabold text-xs py-3.5 px-6 rounded-lg transition-transform uppercase tracking-wider shadow-sm mt-3.5"
                   >
-                    Enviar Solicitud de Expediente
+                    {contactForm.submitLabel}
                   </button>
                 </form>
               )}

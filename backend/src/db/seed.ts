@@ -117,8 +117,15 @@ async function seed() {
   const [bannerRows] = await pool.query("SELECT COUNT(*) AS count FROM banners");
   const count = (bannerRows as { count: number }[])[0].count;
 
+  const { seedSiteContentIfEmpty, consolidateContactForms } = await import("./siteContentSeed.js");
+  const seededSite = await seedSiteContentIfEmpty();
+  if (seededSite) {
+    console.log("✓ Contenido del sitio insertado (identidad, garantías, formularios, canales, FAQ)");
+  }
+  await consolidateContactForms();
+
   if (count > 0) {
-    console.log("⊙ La base de datos ya tiene datos. Seed omitido.");
+    console.log("⊙ La base de datos ya tiene datos de banners. Seed principal omitido.");
     await pool.end();
     return;
   }
