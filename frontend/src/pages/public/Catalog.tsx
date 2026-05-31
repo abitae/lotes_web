@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
-import { Project, ProjectType, ProjectStatus } from "../../types";
+import { Project } from "../../types";
 import {
   Search,
   Filter,
@@ -82,6 +82,11 @@ export const Catalog: React.FC = () => {
   }, [searchParams, projects]);
 
   // Extract list of all unique regions for the search filter
+  const hasSurfaceData = useMemo(
+    () => projects.some((p) => (p.surface ?? 0) > 0),
+    [projects]
+  );
+
   const uniqueRegions = useMemo(() => {
     const list = projects.map((p) => p.region);
     return Array.from(new Set(list));
@@ -133,12 +138,12 @@ export const Catalog: React.FC = () => {
       result.sort((a, b) => a.priceSoles - b.priceSoles);
     } else if (sortOption === "priceDesc") {
       result.sort((a, b) => b.priceSoles - a.priceSoles);
-    } else if (sortOption === "areaDesc") {
-      result.sort((a, b) => b.surface - a.surface);
+    } else if (sortOption === "areaDesc" && hasSurfaceData) {
+      result.sort((a, b) => (b.surface ?? 0) - (a.surface ?? 0));
     }
 
     return result;
-  }, [projects, searchQuery, selectedType, selectedRegion, selectedPriceRange, selectedStatus, sortOption]);
+  }, [projects, searchQuery, selectedType, selectedRegion, selectedPriceRange, selectedStatus, sortOption, hasSurfaceData]);
 
   // Triggered when clicking a project item on the list.
   // "clicking on a project marks its location on the map"
@@ -313,10 +318,8 @@ export const Catalog: React.FC = () => {
                   className="w-full bg-stone-50 border border-stone-200 focus:border-emerald-700 focus:bg-white text-xs p-2.5 rounded-lg outline-none cursor-pointer"
                 >
                   <option value="All">Cualquiera</option>
-                  <option value="Pre-venta">Pre-venta (Liquidación)</option>
-                  <option value="Inmediata">Entrega Inmediata</option>
-                  <option value="En Obras">En Obras / Habilitación</option>
-                  <option value="Vendido">Vendido / En Liquidación</option>
+                  <option value="Pre-venta">Pre-venta (Disponible)</option>
+                  <option value="Vendido">Vendido / Agotado</option>
                 </select>
               </div>
             </div>
@@ -349,7 +352,9 @@ export const Catalog: React.FC = () => {
                         <option value="default">Recomendados</option>
                         <option value="priceAsc">Precio: Menor a Mayor</option>
                         <option value="priceDesc">Precio: Mayor a Menor</option>
-                        <option value="areaDesc">Área: Mayor primero</option>
+                        {hasSurfaceData && (
+                          <option value="areaDesc">Área: Mayor primero</option>
+                        )}
                       </select>
                     </div>
 
@@ -444,9 +449,6 @@ export const Catalog: React.FC = () => {
                             <div className="flex flex-col">
                               <span className="text-xl font-sans font-extrabold text-emerald-950">
                                 S/. {project.priceSoles.toLocaleString()}
-                              </span>
-                              <span className="text-3xs text-stone-400 font-mono">
-                                Aprox: US$ {project.priceDollars.toLocaleString()}
                               </span>
                             </div>
                             
@@ -579,7 +581,9 @@ export const Catalog: React.FC = () => {
                           {selectedProjObject.title}
                         </h5>
                         <span className="font-mono text-[10px] text-stone-500 block">
-                          Área: {selectedProjObject.surface} m² | S/. {selectedProjObject.priceSoles.toLocaleString()}
+                          S/. {selectedProjObject.priceSoles.toLocaleString()}
+                          {(selectedProjObject.surface ?? 0) > 0 &&
+                            ` | Área: ${selectedProjObject.surface} m²`}
                         </span>
                       </div>
                       
@@ -648,16 +652,18 @@ export const Catalog: React.FC = () => {
               <div className="p-6 sm:p-8 space-y-6">
                 
                 {/* Stats Bar details */}
-                <div className="grid grid-cols-3 gap-4 border border-stone-150 p-4 bg-stone-50 rounded-xl">
-                  <div className="text-center">
-                    <span className="block font-mono text-[9px] text-stone-400 uppercase tracking-widest leading-none">
-                      Área total
-                    </span>
-                    <strong className="text-base font-sans font-extrabold text-emerald-950 block mt-1">
-                      {detailedProject.surface} m²
-                    </strong>
-                  </div>
-                  <div className="text-center border-x border-stone-200">
+                <div className={`grid gap-4 border border-stone-150 p-4 bg-stone-50 rounded-xl ${(detailedProject.surface ?? 0) > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                  {(detailedProject.surface ?? 0) > 0 && (
+                    <div className="text-center">
+                      <span className="block font-mono text-[9px] text-stone-400 uppercase tracking-widest leading-none">
+                        Área total
+                      </span>
+                      <strong className="text-base font-sans font-extrabold text-emerald-950 block mt-1">
+                        {detailedProject.surface} m²
+                      </strong>
+                    </div>
+                  )}
+                  <div className={`text-center ${(detailedProject.surface ?? 0) > 0 ? "border-x border-stone-200" : ""}`}>
                     <span className="block font-mono text-[9px] text-stone-400 uppercase tracking-widest leading-none">
                       Disponibilidad
                     </span>
@@ -684,9 +690,6 @@ export const Catalog: React.FC = () => {
                     <strong className="text-3xl font-sans font-extrabold text-emerald-950">
                       S/. {detailedProject.priceSoles.toLocaleString()}
                     </strong>
-                    <span className="text-xs text-stone-550 font-mono">
-                      Ref: US$ {detailedProject.priceDollars.toLocaleString()}
-                    </span>
                   </div>
                   <p className="text-[10px] text-stone-400 italic">
                     * Financiamiento directo habilitable con firma notarial simple de cuota inicial.

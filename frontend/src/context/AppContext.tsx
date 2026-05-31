@@ -32,9 +32,6 @@ interface AppContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
-  addProject: (project: Omit<Project, "id">) => Promise<void>;
-  editProject: (id: string, project: Partial<Project>) => Promise<void>;
-  deleteProject: (id: string) => Promise<void>;
   addInquiry: (inquiry: Omit<Inquiry, "id" | "status" | "createdAt">) => Promise<void>;
   updateInquiryStatus: (id: string, status: Inquiry["status"], notes?: string) => Promise<void>;
   deleteInquiry: (id: string) => Promise<void>;
@@ -173,24 +170,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setStats(EMPTY_STATS);
   };
 
-  const addProject = async (fields: Omit<Project, "id">) => {
-    const created = await api.createProject(fields);
-    setProjects((prev) => [created, ...prev]);
-    await refreshStats();
-  };
-
-  const editProject = async (id: string, updatedFields: Partial<Project>) => {
-    const updated = await api.updateProject(id, updatedFields);
-    setProjects((prev) => prev.map((p) => (p.id === id ? updated : p)));
-    await refreshStats();
-  };
-
-  const deleteProject = async (id: string) => {
-    await api.deleteProject(id);
-    setProjects((prev) => prev.filter((p) => p.id !== id));
-    await refreshStats();
-  };
-
   const addInquiry = async (fields: Omit<Inquiry, "id" | "status" | "createdAt">) => {
     try {
       const created = await api.createInquiry(fields);
@@ -265,9 +244,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         login,
         logout,
         clearError,
-        addProject,
-        editProject,
-        deleteProject,
         addInquiry,
         updateInquiryStatus,
         deleteInquiry,

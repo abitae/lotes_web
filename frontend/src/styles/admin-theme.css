@@ -1,0 +1,170 @@
+/**
+ * Utilidades semánticas para el panel admin — respetan light/dark via CSS variables.
+ */
+.admin-card {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+  color: var(--text-p);
+}
+
+.admin-surface {
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text-p);
+}
+
+.admin-text-muted {
+  color: var(--text-s);
+}
+
+.admin-input {
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text-p);
+}
+
+.admin-overlay {
+  background-color: rgb(0 0 0 / 0.4);
+}
+
+.dark .admin-overlay {
+  background-color: rgb(0 0 0 / 0.65);
+}
+
+.admin-icon-well {
+  background-color: color-mix(in srgb, var(--bg) 65%, transparent);
+}
+
+.admin-row-hover:hover {
+  background-color: color-mix(in srgb, var(--bg) 50%, transparent);
+}
+
+.admin-surface-muted {
+  background-color: color-mix(in srgb, var(--bg) 40%, transparent);
+  border-color: var(--border);
+}
+
+.admin-inactive-badge {
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text-s);
+}
+
+.admin-action-btn {
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text-p);
+}
+
+.admin-action-btn:hover {
+  background-color: var(--border);
+}
+
+.admin-gradient-overlay {
+  background: linear-gradient(
+    to top right,
+    var(--bg) 0%,
+    color-mix(in srgb, var(--bg) 80%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+.admin-divide > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border);
+}
+
+/* Fallback: mapeo de clases legacy stone en admin */
+[id^="admin-"] .bg-stone-900,
+#admin-dashboard-overview .bg-stone-900,
+#admin-project-management .bg-stone-900,
+#admin-multimedia-management .bg-stone-900 {
+  background-color: var(--card-bg) !important;
+}
+
+[id^="admin-"] .bg-stone-950,
+[id^="admin-"] .bg-stone-955,
+[id^="admin-"] .bg-stone-800,
+[id^="admin-"] .bg-stone-850,
+#admin-dashboard-overview .bg-stone-950,
+#admin-project-management .bg-stone-950,
+#admin-multimedia-management .bg-stone-950 {
+  background-color: var(--bg) !important;
+}
+
+[id^="admin-"] .bg-stone-950\/80,
+[id^="admin-"] .bg-stone-950\/40,
+#admin-dashboard-overview .bg-stone-950\/80,
+#admin-project-management .bg-stone-950\/80,
+#admin-multimedia-management .bg-stone-950\/80 {
+  background-color: rgb(0 0 0 / 0.4) !important;
+}
+
+.dark [id^="admin-"] .bg-stone-950\/80,
+.dark #admin-dashboard-overview .bg-stone-950\/80,
+.dark #admin-project-management .bg-stone-950\/80,
+.dark #admin-multimedia-management .bg-stone-950\/80 {
+  background-color: rgb(0 0 0 / 0.65) !important;
+}
+
+[id^="admin-"] .bg-stone-850\/60,
+#admin-dashboard-overview .bg-stone-850\/60 {
+  background-color: color-mix(in srgb, var(--bg) 65%, transparent) !important;
+}
+
+[id^="admin-"] .bg-stone-900\/50 {
+  background-color: color-mix(in srgb, var(--card-bg) 70%, var(--bg)) !important;
+}
+
+[id^="admin-"] .hover\:bg-stone-850\/40:hover,
+[id^="admin-"] .hover\:bg-stone-850:hover,
+[id^="admin-"] .hover\:bg-stone-750:hover,
+[id^="admin-"] .hover\:bg-stone-950:hover,
+[id^="admin-"] .hover\:bg-stone-900:hover {
+  background-color: color-mix(in srgb, var(--bg) 55%, transparent) !important;
+}
+
+[id^="admin-"] .bg-\[\#191716\] {
+  background-color: var(--card-bg) !important;
+  color: var(--text-p) !important;
+}
+
+[id^="admin-"] .text-stone-50,
+[id^="admin-"] .text-stone-100,
+[id^="admin-"] .text-stone-200,
+[id^="admin-"] .text-stone-300,
+[id^="admin-"] .text-stone-250,
+[id^="admin-"] .text-stone-105,
+[id^="admin-"] .text-stone-110,
+[id^="admin-"] .text-stone-150 {
+  color: var(--text-p) !important;
+}
+
+[id^="admin-"] .text-stone-400,
+[id^="admin-"] .text-stone-500,
+[id^="admin-"] .text-stone-550,
+[id^="admin-"] .text-stone-600,
+[id^="admin-"] .text-stone-450 {
+  color: var(--text-s) !important;
+}
+
+[id^="admin-"] .border-stone-850,
+[id^="admin-"] .border-stone-855,
+[id^="admin-"] .border-stone-800,
+[id^="admin-"] .border-stone-750,
+[id^="admin-"] .border-stone-700,
+[id^="admin-"] .border-stone-650,
+[id^="admin-"] .border-stone-900\/60,
+[id^="admin-"] .divide-stone-850 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--border) !important;
+}
+
+[id^="admin-"] .from-stone-950 {
+  --tw-gradient-from: var(--bg) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+[id^="admin-"] .via-stone-950\/80 {
+  --tw-gradient-via: color-mix(in srgb, var(--bg) 80%, transparent) var(--tw-gradient-via-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}

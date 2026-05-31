@@ -62,26 +62,6 @@ export interface DashboardStats {
   projectTypeDistribution: { name: string; value: number }[];
 }
 
-export interface ProjectRow {
-  id: string;
-  title: string;
-  location: string;
-  region: string;
-  project_type: ProjectType;
-  surface: number;
-  price_soles: number;
-  price_dollars: number;
-  status: ProjectStatus;
-  image_url: string;
-  lat: number;
-  lng: number;
-  description: string;
-  features: string | string[];
-  featured: number;
-  total_lots: number;
-  available_lots: number;
-}
-
 export interface BannerRow {
   id: string;
   title: string;

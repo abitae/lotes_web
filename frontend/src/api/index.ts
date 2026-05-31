@@ -16,23 +16,6 @@ export const api = {
 
   getProject: (id: string) => apiRequest<Project>(`/projects/${id}`),
 
-  createProject: (data: Omit<Project, "id">) =>
-    apiRequest<Project>("/projects", {
-      method: "POST",
-      auth: true,
-      body: JSON.stringify(data),
-    }),
-
-  updateProject: (id: string, data: Partial<Project>) =>
-    apiRequest<Project>(`/projects/${id}`, {
-      method: "PUT",
-      auth: true,
-      body: JSON.stringify(data),
-    }),
-
-  deleteProject: (id: string) =>
-    apiRequest<void>(`/projects/${id}`, { method: "DELETE", auth: true }),
-
   getBanners: () => apiRequest<Banner[]>("/banners"),
 
   createBanner: (data: Omit<Banner, "id">) =>

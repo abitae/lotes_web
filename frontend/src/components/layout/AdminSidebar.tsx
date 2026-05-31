@@ -9,19 +9,14 @@ import { useApp } from "../../context/AppContext";
 import {
   PieChart,
   HardDriveUpload,
-  Layers,
-  ArrowRightLeft,
-  ChevronsLeft,
-  FolderLock,
   ArrowUpRight,
   Sparkles,
   Inbox
 } from "lucide-react";
 
 export const AdminSidebar: React.FC = () => {
-  const { inquiries, projects } = useApp();
+  const { inquiries } = useApp();
   const pendingInquiries = inquiries.filter((i) => i.status === "Pendiente").length;
-  const activeProjects = projects.filter((p) => p.status !== "Vendido").length;
 
   return (
     <aside
@@ -72,25 +67,6 @@ export const AdminSidebar: React.FC = () => {
         <span className="block pt-3 px-2 text-[8px] font-mono font-bold uppercase tracking-widest text-[var(--text-s)] opacity-60 mb-1">
           Operaciones de campo
         </span>
-
-        <NavLink
-          to="/admin/projects"
-          className={({ isActive }) =>
-            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
-              isActive
-                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
-                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
-            }`
-          }
-        >
-          <div className="flex items-center gap-2">
-            <Layers className="w-3.5 h-3.5 shrink-0" />
-            <span>Gestión de Lotes</span>
-          </div>
-          <span className="bg-[var(--bg)] text-[var(--text-p)] border border-[var(--border)] font-mono text-[8px] px-1 py-0.2 rounded">
-            {activeProjects}
-          </span>
-        </NavLink>
 
         <NavLink
           to="/admin/multimedia"

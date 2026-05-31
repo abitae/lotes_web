@@ -1,30 +1,24 @@
 import type { Request, Response } from "express";
 import { pool } from "../config/db.js";
-import type { DashboardStats, InquiryRow, ProjectRow, ProjectType } from "../types/index.js";
+import { fetchAllProjects } from "../services/webProjects.service.js";
+import { mapWebProjectToProject } from "../utils/mapWebProject.js";
+import type { DashboardStats, InquiryRow } from "../types/index.js";
 
 const MONTH_LABELS = ["En", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
 export async function getStats(_req: Request, res: Response) {
-  const [projectRows] = await pool.query("SELECT * FROM projects");
   const [inquiryRows] = await pool.query("SELECT * FROM inquiries");
-
-  const projects = projectRows as ProjectRow[];
   const inquiries = inquiryRows as InquiryRow[];
 
+  const { projects: externalProjects, summary } = await fetchAllProjects();
+  const projects = externalProjects.map(mapWebProjectToProject);
+
   const pendingLeads = inquiries.filter((i) => i.status === "Pendiente").length;
-  const totalLotsSold = projects.reduce((acc, p) => acc + (p.total_lots - p.available_lots), 0);
+  const totalLotsSold = summary.lots_total - summary.lots_free;
 
-  const typesMap: Record<ProjectType, number> = {
-    Playero: 0,
-    Campestre: 0,
-    Urbano: 0,
-    Industrial: 0,
-  };
-
+  const typesMap = new Map<string, number>();
   projects.forEach((p) => {
-    if (typesMap[p.project_type] !== undefined) {
-      typesMap[p.project_type]++;
-    }
+    typesMap.set(p.projectType, (typesMap.get(p.projectType) ?? 0) + 1);
   });
 
   const monthlyCounts = new Array(12).fill(0) as number[];
@@ -39,12 +33,15 @@ export async function getStats(_req: Request, res: Response) {
   }));
 
   const stats: DashboardStats = {
-    totalProjects: projects.length,
+    totalProjects: summary.projects_count,
     totalLeads: inquiries.length,
     pendingLeads,
     totalLotsSold,
     monthlyLeadsTrend,
-    projectTypeDistribution: Object.entries(typesMap).map(([name, value]) => ({ name, value })),
+    projectTypeDistribution: Array.from(typesMap.entries()).map(([name, value]) => ({
+      name,
+      value,
+    })),
   };
 
   res.json(stats);

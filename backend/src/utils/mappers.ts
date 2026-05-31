@@ -1,31 +1,4 @@
-import type { Banner, BannerRow, Inquiry, InquiryRow, Project, ProjectRow, Testimonial, TestimonialRow } from "../types/index.js";
-
-function parseFeatures(features: string | string[]): string[] {
-  if (Array.isArray(features)) return features;
-  if (typeof features === "string") return JSON.parse(features) as string[];
-  return [];
-}
-
-export function mapProject(row: ProjectRow): Project {
-  return {
-    id: row.id,
-    title: row.title,
-    location: row.location,
-    region: row.region,
-    projectType: row.project_type,
-    surface: Number(row.surface),
-    priceSoles: Number(row.price_soles),
-    priceDollars: Number(row.price_dollars),
-    status: row.status,
-    imageUrl: row.image_url,
-    coordinates: { lat: Number(row.lat), lng: Number(row.lng) },
-    description: row.description,
-    features: parseFeatures(row.features),
-    featured: Boolean(row.featured),
-    totalLots: row.total_lots,
-    availableLots: row.available_lots,
-  };
-}
+import type { Banner, BannerRow, Inquiry, InquiryRow, Testimonial, TestimonialRow } from "../types/index.js";
 
 export function mapBanner(row: BannerRow): Banner {
   return {

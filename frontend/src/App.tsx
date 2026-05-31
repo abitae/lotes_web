@@ -15,7 +15,6 @@ import { Contacto } from "./pages/public/Contacto";
 
 // Admin Pages
 import { DashboardOverview } from "./pages/admin/DashboardOverview";
-import { ProjectManagement } from "./pages/admin/ProjectManagement";
 import { MultimediaManagement } from "./pages/admin/MultimediaManagement";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 
@@ -167,14 +166,6 @@ export default function App() {
             element={
               <ProtectedAdmin>
                 <DashboardOverview />
-              </ProtectedAdmin>
-            }
-          />
-          <Route
-            path="/admin/projects"
-            element={
-              <ProtectedAdmin>
-                <ProjectManagement />
               </ProtectedAdmin>
             }
           />

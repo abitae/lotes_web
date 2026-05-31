@@ -26,8 +26,8 @@ export const Home: React.FC = () => {
   const { banners, projects, testimonials, addInquiry } = useApp();
   const navigate = useNavigate();
 
-  // Active projects filtered to Featured ones
-  const featuredProjects = projects.filter((p) => p.featured);
+  // Proyectos destacados: imagen + lotes libres (máx. 6)
+  const featuredProjects = projects.filter((p) => p.featured).slice(0, 6);
   
   // Active Banners Slider State
   const activeBanners = banners.filter((b) => b.isActive);
@@ -286,9 +286,11 @@ export const Home: React.FC = () => {
                     {project.status}
                   </span>
                 </div>
-                <div className="absolute bottom-4 right-4 bg-stone-950/85 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-3xs text-stone-100">
-                  {project.surface} m²
-                </div>
+                {project.surface != null && project.surface > 0 && (
+                  <div className="absolute bottom-4 right-4 bg-stone-950/85 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-3xs text-stone-100">
+                    {project.surface} m²
+                  </div>
+                )}
               </div>
 
               {/* Main Info */}
@@ -313,9 +315,6 @@ export const Home: React.FC = () => {
                     </span>
                     <span className="text-xl font-sans font-extrabold text-emerald-950">
                       S/. {project.priceSoles.toLocaleString()}
-                    </span>
-                    <span className="text-2xs text-stone-500 font-mono">
-                      ~ Ref: US$ {project.priceDollars.toLocaleString()}
                     </span>
                   </div>
                   <button

@@ -1,25 +1,3 @@
-CREATE TABLE IF NOT EXISTS projects (
-  id             VARCHAR(36) PRIMARY KEY,
-  title          VARCHAR(255) NOT NULL,
-  location       VARCHAR(255) NOT NULL,
-  region         VARCHAR(100) NOT NULL,
-  project_type   ENUM('Playero', 'Campestre', 'Urbano', 'Industrial') NOT NULL,
-  surface        DECIMAL(10, 2) NOT NULL,
-  price_soles    DECIMAL(12, 2) NOT NULL,
-  price_dollars  DECIMAL(12, 2) NOT NULL,
-  status         ENUM('Pre-venta', 'Inmediata', 'Vendido', 'En Obras') NOT NULL,
-  image_url      TEXT NOT NULL,
-  lat            DECIMAL(10, 7) NOT NULL,
-  lng            DECIMAL(10, 7) NOT NULL,
-  description    TEXT NOT NULL,
-  features       JSON NOT NULL,
-  featured       TINYINT(1) NOT NULL DEFAULT 0,
-  total_lots     INT NOT NULL,
-  available_lots INT NOT NULL,
-  created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS banners (
   id          VARCHAR(36) PRIMARY KEY,
   title       VARCHAR(255) NOT NULL,
