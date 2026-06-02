@@ -143,3 +143,56 @@ export interface FaqItem {
   sortOrder: number;
   isActive: boolean;
 }
+
+export interface AboutPageContent {
+  heroEyebrow: string;
+  heroHeading: string;
+  heroDescription: string;
+  heroBackgroundImageUrl: string;
+  missionHeading: string;
+  missionDescription: string;
+  visionHeading: string;
+  visionDescription: string;
+  valuesEyebrow: string;
+  valuesHeading: string;
+  valuesDescription: string;
+  advisorsEyebrow: string;
+  advisorsHeading: string;
+  advisorsDescription: string;
+}
+
+export interface AboutValue {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface ExpertAdvisor {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  imageUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface AboutData {
+  page: AboutPageContent;
+  values: AboutValue[];
+  advisors: ExpertAdvisor[];
+}
+
+export interface HomeAlertModal {
+  isEnabled: boolean;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  buttonText: string | null;
+  buttonLink: string | null;
+  updatedAt: string;
+}

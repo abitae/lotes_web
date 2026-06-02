@@ -128,6 +128,204 @@ export const DEFAULT_FAQS = [
   },
 ];
 
+const DEFAULT_ABOUT_HERO_BG =
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1600";
+
+export const DEFAULT_ABOUT_PAGE = {
+  heroEyebrow: "Nuestra Filosofía",
+  heroHeading: "Redefiniendo el Acceso a la Tierra en el Perú",
+  heroDescription:
+    "Ayudamos a las familias peruanas y pequeños empresarios a adquirir patrimonio predial legítimo e independizado ante registros públicos, eliminando la informalidad y la especulación usurera tradicional.",
+  heroBackgroundImageUrl: DEFAULT_ABOUT_HERO_BG,
+  missionHeading: "Nuestra Misión",
+  missionDescription:
+    "Democratizar la adjudicación de terrenos y predios de remates públicos o liquidaciones con total transparencia jurídica y facilidades de financiamiento directo. Garantizamos que cada centavo depositado por nuestros clientes se traduzca en propiedad registrada, lista para heredar o edificar.",
+  visionHeading: "Nuestra Visión",
+  visionDescription:
+    "Ser reconocidos al 2030 como la marca de desarrollo urbano y corretaje de terrenos más íntegra, segura y preferida de Sudamérica. Nos esforzamos por habilitar proyectos sostenibles que aporten verdadero valor arquitectónico, acceso seguro a servicios básicos y hermosas áreas verdes recreativas.",
+  valuesEyebrow: "Pilares Organizacionales",
+  valuesHeading: "Valores que Respaldan su Depósito",
+  valuesDescription:
+    "Navegar con probidad bajo las rigurosas regulaciones registrales de Sunarp en el Perú es nuestro compromiso fundacional.",
+  advisorsEyebrow: "Asesores Expertos",
+  advisorsHeading: "Conoce a la Mesa de Adjudicación",
+  advisorsDescription:
+    "Especialistas de primer nivel con amplia trayectoria en derecho registral corporativo e ingeniería civil de habilitaciones urbanas en el Perú.",
+};
+
+export const DEFAULT_ABOUT_VALUES = [
+  {
+    icon: "Award",
+    title: "Seguridad Jurídica",
+    description:
+      "No comercializamos propiedades posesorias de dudosa procedencia jurídica. Cada centímetro cuadrado de nuestro catálogo cuenta con expedientes aprobados e inscritos de forma individual.",
+    sortOrder: 0,
+  },
+  {
+    icon: "ShieldAlert",
+    title: "Transparencia Administrativa",
+    description:
+      "Nuestros precios son directos y están libres de costos encubiertos de liquidación. Facilitamos las copias literales y documentos de dominio de forma abierta previo a cualquier abono de separación.",
+    sortOrder: 1,
+  },
+  {
+    icon: "HeartHandshake",
+    title: "Planificación y Sostenibilidad",
+    description:
+      "Diseñamos los condominios playeros y campestres preservando las áreas de protección forestal, gestionando la provisión racional de recursos hídricos y velando por zonas comunales óptimas.",
+    sortOrder: 2,
+  },
+];
+
+export const DEFAULT_EXPERT_ADVISORS = [
+  {
+    name: "Dr. Hernando de Soto Prado",
+    role: "Director de Asuntos Legales Registrales (SUNARP)",
+    bio: "Especialista con más de 15 años de experiencia en saneamiento inmobiliario físico legal, independización de predios suburbanos e hipotecas bancarias corporativas.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600",
+    sortOrder: 0,
+  },
+  {
+    name: "Ing. Sandra Montenegro Cisneros",
+    role: "Jefe Corporativo de Habilitación Urbana y Geotecnia",
+    bio: "Encargada del replanteo topográfico computarizado, trazado vial georreferenciado e ingeniería estructural para la captación garantizada de servicios domésticos.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
+    sortOrder: 1,
+  },
+  {
+    name: "Mg. Milton Alarcón Seminario",
+    role: "Gerente General de Adjudicaciones Inmobiliarias",
+    bio: "Experto en análisis de rentabilidad predial, tasaciones notariales por subasta y diseño de planes de financiamiento directo adaptados a la AFP y CTS de microinversionistas.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=600",
+    sortOrder: 2,
+  },
+];
+
+export async function seedAboutContentIfEmpty(): Promise<boolean> {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM about_page");
+  const count = (rows as { count: number }[])[0].count;
+  if (count > 0) return false;
+
+  const p = DEFAULT_ABOUT_PAGE;
+  await pool.query(
+    `INSERT INTO about_page (
+      id, hero_eyebrow, hero_heading, hero_description, hero_background_image_url,
+      mission_heading, mission_description, vision_heading, vision_description,
+      values_eyebrow, values_heading, values_description,
+      advisors_eyebrow, advisors_heading, advisors_description
+    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      p.heroEyebrow,
+      p.heroHeading,
+      p.heroDescription,
+      p.heroBackgroundImageUrl,
+      p.missionHeading,
+      p.missionDescription,
+      p.visionHeading,
+      p.visionDescription,
+      p.valuesEyebrow,
+      p.valuesHeading,
+      p.valuesDescription,
+      p.advisorsEyebrow,
+      p.advisorsHeading,
+      p.advisorsDescription,
+    ]
+  );
+
+  for (const item of DEFAULT_ABOUT_VALUES) {
+    await pool.query(
+      `INSERT INTO about_values (id, icon, title, description, sort_order, is_active)
+       VALUES (?, ?, ?, ?, ?, 1)`,
+      [randomUUID(), item.icon, item.title, item.description, item.sortOrder]
+    );
+  }
+
+  for (const advisor of DEFAULT_EXPERT_ADVISORS) {
+    await pool.query(
+      `INSERT INTO expert_advisors (id, name, role, bio, image_url, sort_order, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [randomUUID(), advisor.name, advisor.role, advisor.bio, advisor.imageUrl, advisor.sortOrder]
+    );
+  }
+
+  return true;
+}
+
+/** Añade imagen de fondo del hero si la BD existía antes de la columna. */
+export const DEFAULT_HOME_ALERT = {
+  isEnabled: false,
+  title: "Aviso importante",
+  description: "Consulte nuestras promociones vigentes y proyectos con entrega inmediata.",
+  imageUrl: null as string | null,
+  videoUrl: null as string | null,
+  buttonText: "Ver catálogo",
+  buttonLink: "/catalog",
+};
+
+export async function seedHomeAlertIfEmpty(): Promise<boolean> {
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM home_alert_modal");
+  const count = (rows as { count: number }[])[0].count;
+  if (count > 0) return false;
+
+  const a = DEFAULT_HOME_ALERT;
+  await pool.query(
+    `INSERT INTO home_alert_modal (id, is_enabled, title, description, image_url, video_url, button_text, button_link)
+     VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
+    [a.isEnabled ? 1 : 0, a.title, a.description, a.imageUrl, a.videoUrl, a.buttonText, a.buttonLink]
+  );
+  return true;
+}
+
+export async function ensureHomeAlertTable(): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS home_alert_modal (
+      id          TINYINT PRIMARY KEY DEFAULT 1,
+      is_enabled  TINYINT(1) NOT NULL DEFAULT 0,
+      title       VARCHAR(255) NOT NULL DEFAULT '',
+      description TEXT NOT NULL,
+      image_url   TEXT NULL,
+      video_url   TEXT NULL,
+      button_text VARCHAR(255) NULL,
+      button_link VARCHAR(512) NULL,
+      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `);
+  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM home_alert_modal");
+  if ((rows as { count: number }[])[0].count === 0) {
+    await seedHomeAlertIfEmpty();
+  }
+}
+
+export async function ensureHomeAlertVideoColumn(): Promise<void> {
+  const [cols] = await pool.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'home_alert_modal' AND COLUMN_NAME = 'video_url'`
+  );
+  if ((cols as { COLUMN_NAME: string }[]).length === 0) {
+    await pool.query(`ALTER TABLE home_alert_modal ADD COLUMN video_url TEXT NULL AFTER image_url`);
+  }
+}
+
+export async function ensureAboutHeroBackgroundColumn(): Promise<void> {
+  const [cols] = await pool.query(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'about_page' AND COLUMN_NAME = 'hero_background_image_url'`
+  );
+  if ((cols as { COLUMN_NAME: string }[]).length === 0) {
+    await pool.query(
+      `ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL AFTER hero_description`
+    );
+  }
+  await pool.query(
+    `UPDATE about_page SET hero_background_image_url = ?
+     WHERE id = 1 AND (hero_background_image_url IS NULL OR hero_background_image_url = '')`,
+    [DEFAULT_ABOUT_HERO_BG]
+  );
+}
+
 export async function seedSiteContentIfEmpty(): Promise<boolean> {
   const [rows] = await pool.query("SELECT COUNT(*) AS count FROM site_settings");
   const count = (rows as { count: number }[])[0].count;

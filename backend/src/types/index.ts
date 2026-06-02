@@ -223,3 +223,105 @@ export interface FaqRow {
   sort_order: number;
   is_active: number;
 }
+
+export interface AboutPage {
+  heroEyebrow: string;
+  heroHeading: string;
+  heroDescription: string;
+  heroBackgroundImageUrl: string;
+  missionHeading: string;
+  missionDescription: string;
+  visionHeading: string;
+  visionDescription: string;
+  valuesEyebrow: string;
+  valuesHeading: string;
+  valuesDescription: string;
+  advisorsEyebrow: string;
+  advisorsHeading: string;
+  advisorsDescription: string;
+}
+
+export interface AboutValue {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface ExpertAdvisor {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  imageUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface AboutData {
+  page: AboutPage;
+  values: AboutValue[];
+  advisors: ExpertAdvisor[];
+}
+
+export interface AboutPageRow {
+  id: number;
+  hero_eyebrow: string;
+  hero_heading: string;
+  hero_description: string;
+  hero_background_image_url: string;
+  mission_heading: string;
+  mission_description: string;
+  vision_heading: string;
+  vision_description: string;
+  values_eyebrow: string;
+  values_heading: string;
+  values_description: string;
+  advisors_eyebrow: string;
+  advisors_heading: string;
+  advisors_description: string;
+}
+
+export interface AboutValueRow {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sort_order: number;
+  is_active: number;
+}
+
+export interface ExpertAdvisorRow {
+  id: string;
+  name: string;
+  role: string;
+  bio: string;
+  image_url: string;
+  sort_order: number;
+  is_active: number;
+}
+
+export interface HomeAlertModal {
+  isEnabled: boolean;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  videoUrl: string | null;
+  buttonText: string | null;
+  buttonLink: string | null;
+  updatedAt: string;
+}
+
+export interface HomeAlertModalRow {
+  id: number;
+  is_enabled: number;
+  title: string;
+  description: string;
+  image_url: string | null;
+  video_url: string | null;
+  button_text: string | null;
+  button_link: string | null;
+  updated_at: Date;
+}

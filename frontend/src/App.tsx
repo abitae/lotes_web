@@ -20,6 +20,8 @@ import { MultimediaManagement } from "./pages/admin/MultimediaManagement";
 import { ContactFormsManagement } from "./pages/admin/ContactFormsManagement";
 import { CorporateChannelsManagement } from "./pages/admin/CorporateChannelsManagement";
 import { FaqManagement } from "./pages/admin/FaqManagement";
+import { AboutManagement } from "./pages/admin/AboutManagement";
+import { HomeAlertManagement } from "./pages/admin/HomeAlertManagement";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { SiteHead } from "./components/SiteHead";
 
@@ -212,6 +214,22 @@ export default function App() {
             element={
               <ProtectedAdmin>
                 <FaqManagement />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/about"
+            element={
+              <ProtectedAdmin>
+                <AboutManagement />
+              </ProtectedAdmin>
+            }
+          />
+          <Route
+            path="/admin/home-alert"
+            element={
+              <ProtectedAdmin>
+                <HomeAlertManagement />
               </ProtectedAdmin>
             }
           />

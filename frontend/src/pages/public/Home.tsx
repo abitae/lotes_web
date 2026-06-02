@@ -4,15 +4,16 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
 import { DEFAULT_GUARANTEES, getContactFormBySlug } from "../../config/siteDefaults";
-import { formatProjectInterestLabel, formatProjectLocation } from "../../utils/projects";
+import { ProjectsCarousel } from "../../components/ProjectsCarousel";
+import { HomeAlertModal } from "../../components/HomeAlertModal";
+import { formatProjectInterestLabel } from "../../utils/projects";
 import { GuaranteeIcon, renderInlineBold } from "../../utils/siteContent";
 import {
   Compass,
   ArrowRight,
-  MapPin,
   CheckCircle,
   ArrowBigLeft,
   ArrowBigRight,
@@ -26,15 +27,9 @@ export const Home: React.FC = () => {
   const guaranteeData = guarantees ?? DEFAULT_GUARANTEES;
   const contactForm = getContactFormBySlug(contactForms, "contact_consulta");
   const activeGuaranteeItems = guaranteeData.items.filter((i) => i.isActive);
-  const navigate = useNavigate();
 
-  // Proyectos en inicio: destacados o, si no hay, los primeros disponibles (máx. 6)
-  const featuredProjects = (
-    projects.some((p) => p.featured)
-      ? projects.filter((p) => p.featured)
-      : projects.filter((p) => p.status !== "Vendido")
-  ).slice(0, 6);
-  
+  const catalogCarouselProjects = projects;
+
   // Active Banners Slider State
   const activeBanners = banners.filter((b) => b.isActive);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
@@ -102,36 +97,39 @@ export const Home: React.FC = () => {
 
   return (
     <div id="home-page" className="-mt-14">
+      <HomeAlertModal />
       {/* 1. HERO CAROUSEL */}
       <section className="relative min-h-[85vh] lg:min-h-[90vh] flex items-center bg-[var(--bg)] border-b border-[var(--border)] overflow-hidden pt-28 pb-12 lg:pt-36 lg:pb-20">
         {/* Ambient Panoramic Background Banner Image */}
         <div className="absolute inset-0 transition-all duration-1000 select-none">
           <img
             src={activeBanner.imageUrl}
-            alt={activeBanner.title}
-            className="w-full h-full object-cover opacity-15 dark:opacity-25"
+            alt=""
+            aria-hidden
+            className="hero-banner-bg-image w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--bg)]/70 to-[var(--bg)]" />
+          <div className="absolute inset-0 hero-banner-scrim" />
+          <div className="absolute inset-0 hero-banner-scrim-vertical" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent)]/5 via-transparent to-transparent opacity-60 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[var(--accent)]/8 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Content */}
-            <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="hero-banner-content-panel lg:col-span-7 space-y-6 text-left rounded-2xl p-6 sm:p-8">
               {activeBanner.badgeText && (
-                <div className="inline-flex items-center gap-1.5 bg-[var(--accent)]/10 border border-[var(--accent)]/30 text-[var(--accent)] px-3 py-1 rounded-full text-xs font-mono tracking-widest uppercase font-semibold">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                <div className="hero-banner-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-white shrink-0" aria-hidden />
                   {activeBanner.badgeText}
                 </div>
               )}
               
-              <h1 className="text-4xl sm:text-5xl lg:text-5xl font-sans font-extrabold text-[var(--text-p)] leading-tight tracking-tight drop-shadow-sm">
+              <h1 className="hero-banner-title text-4xl sm:text-5xl lg:text-5xl font-sans font-extrabold leading-tight tracking-tight">
                 {activeBanner.title}
               </h1>
 
-              <p className="text-sm sm:text-base lg:text-lg text-[var(--text-s)] leading-relaxed max-w-xl font-light">
+              <p className="hero-banner-subtitle text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl font-normal">
                 {activeBanner.subtitle}
               </p>
 
@@ -145,7 +143,7 @@ export const Home: React.FC = () => {
                 </Link>
                 <Link
                   to="/contact"
-                  className="inline-flex justify-center items-center gap-2 bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border border-[var(--border)] font-sans font-medium text-sm px-7 py-3.5 rounded-lg transition-all shadow-sm"
+                  className="inline-flex justify-center items-center gap-2 bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border-2 border-[var(--border)] font-sans font-semibold text-sm px-7 py-3.5 rounded-lg transition-all shadow-md"
                 >
                   <PhoneCall className="w-4 h-4 text-[var(--accent)]" />
                   Solicitar Asesoría
@@ -163,7 +161,7 @@ export const Home: React.FC = () => {
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
               </div>
 
               {/* Secondary Overlapping / Superposed Image on the Right */}
@@ -174,7 +172,7 @@ export const Home: React.FC = () => {
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
               </div>
 
               {/* Decorative dynamic badge */}
@@ -188,20 +186,20 @@ export const Home: React.FC = () => {
 
         {/* Carousel Slider Controls */}
         {activeBanners.length > 1 && (
-          <div className="absolute bottom-6 right-4 sm:right-10 flex items-center gap-2 z-10">
+          <div className="hero-banner-controls absolute bottom-6 right-4 sm:right-10 flex items-center gap-2 z-10 px-2 py-1.5 rounded-lg border border-[var(--border)]">
             <button
               onClick={handleBannerPrev}
-              className="p-1.5 rounded bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border border-[var(--border)] transition-all focus:outline-none"
+              className="p-1.5 rounded-md bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border border-[var(--border)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               aria-label="Banner anterior"
             >
               <ArrowBigLeft className="w-4 h-4" />
             </button>
-            <span className="font-mono text-xs text-[var(--text-s)]">
+            <span className="font-mono text-xs font-semibold text-[var(--text-p)] tabular-nums min-w-[2.5rem] text-center">
               {currentBannerIndex + 1} / {activeBanners.length}
             </span>
             <button
               onClick={handleBannerNext}
-              className="p-1.5 rounded bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border border-[var(--border)] transition-all focus:outline-none"
+              className="p-1.5 rounded-md bg-[var(--card-bg)] hover:bg-[var(--border)] text-[var(--text-p)] border border-[var(--border)] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
               aria-label="Siguiente banner"
             >
               <ArrowBigRight className="w-4 h-4" />
@@ -266,8 +264,10 @@ export const Home: React.FC = () => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
+        </div>
 
-          {featuredProjects.length === 0 ? (
+        {catalogCarouselProjects.length === 0 ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--bg)] px-6 py-14 text-center space-y-4">
               <Compass className="w-10 h-10 text-[var(--accent-text)] mx-auto opacity-80" />
               <p className="text-[var(--text-s)] text-sm font-light max-w-md mx-auto">
@@ -281,94 +281,10 @@ export const Home: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {featuredProjects.map((project) => {
-                const locationLabel = formatProjectLocation(project);
-                return (
-                  <article
-                    key={project.id}
-                    className="bg-[var(--bg)] rounded-2xl border border-[var(--border)] overflow-hidden premium-card-shadow premium-card-hover flex flex-col group"
-                  >
-                    <div className="relative h-52 sm:h-56 w-full bg-[var(--border)]/30 overflow-hidden shrink-0">
-                      <img
-                        src={project.imageUrl}
-                        alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                        <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-1 bg-black/70 backdrop-blur-sm border border-white/15 rounded-full text-white">
-                          {project.projectType}
-                        </span>
-                        <span
-                          className={`text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-sm ${
-                            project.status === "Pre-venta"
-                              ? "bg-amber-100/95 text-amber-900 border border-amber-200"
-                              : project.status === "Inmediata"
-                              ? "bg-emerald-100/95 text-emerald-900 border border-emerald-200"
-                              : "bg-white/90 text-stone-800 border border-stone-200"
-                          }`}
-                        >
-                          {project.status}
-                        </span>
-                      </div>
-                      {project.availableLots > 0 && (
-                        <div className="absolute bottom-3 left-3 bg-[var(--accent)] text-white px-2.5 py-1 rounded-md font-mono text-[10px] font-bold uppercase tracking-wide shadow-lg">
-                          {project.availableLots} lote{project.availableLots !== 1 ? "s" : ""} libre{project.availableLots !== 1 ? "s" : ""}
-                        </div>
-                      )}
-                      {project.surface != null && project.surface > 0 && (
-                        <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-[10px] text-white">
-                          {project.surface} m²
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
-                      <div className="space-y-2">
-                        {locationLabel && (
-                          <div className="flex items-center gap-1.5 text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-widest">
-                            <MapPin className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
-                            <span className="line-clamp-1">{locationLabel}</span>
-                          </div>
-                        )}
-                        <h3 className="font-sans font-bold text-lg text-[var(--text-p)] group-hover:text-[var(--accent-text)] leading-snug transition-colors line-clamp-2">
-                          {project.title}
-                        </h3>
-                        {project.description && (
-                          <p className="text-[var(--text-s)] text-xs font-light line-clamp-2 leading-relaxed">
-                            {project.description}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="pt-4 border-t border-[var(--border)] flex items-end justify-between gap-3">
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[10px] text-[var(--text-muted)] font-mono tracking-widest uppercase">
-                            Desde
-                          </span>
-                          <span className="text-xl font-sans font-extrabold text-[var(--accent-text)] truncate">
-                            {project.priceSoles > 0 ? `S/. ${project.priceSoles.toLocaleString()}` : "Consultar"}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/catalog/${project.id}`)}
-                          className="shrink-0 inline-flex items-center gap-1.5 bg-[var(--text-p)] text-[var(--card-bg)] hover:bg-[var(--accent)] hover:text-white text-[11px] font-sans font-bold py-2.5 px-3.5 rounded-lg transition-colors shadow-sm"
-                        >
-                          Ver detalles
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <ProjectsCarousel projects={catalogCarouselProjects} visibleColumns={3} />
+        )}
       </section>
 
       {/* 4. WHY INVEST SECTION WITH AN IMAGE BACKGROUND */}

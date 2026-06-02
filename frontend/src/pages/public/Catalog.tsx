@@ -6,17 +6,19 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApp } from "../../context/AppContext";
-import { Project } from "../../types";
-import { formatProjectLocation } from "../../utils/projects";
+import { ProjectCard } from "../../components/ProjectCard";
+import {
+  getUniqueProjectTypesFromProjects,
+  getUniqueRegionsFromProjects,
+  getProjectTypeFilterLabel,
+} from "../../utils/projects";
 import {
   Search,
   Filter,
   Grid,
   List,
-  MapPin,
   Compass,
   ArrowUpDown,
-  ArrowRight,
 } from "lucide-react";
 
 export const Catalog: React.FC = () => {
@@ -48,22 +50,49 @@ export const Catalog: React.FC = () => {
     [projects]
   );
 
-  const uniqueRegions = useMemo(() => {
-    const list = projects.map((p) => p.region);
-    return Array.from(new Set(list));
-  }, [projects]);
+  const uniqueRegions = useMemo(() => getUniqueRegionsFromProjects(projects), [projects]);
+
+  const uniqueProjectTypes = useMemo(() => getUniqueProjectTypesFromProjects(projects), [projects]);
+
+  useEffect(() => {
+    if (projects.length === 0) return;
+    if (selectedRegion !== "All" && !uniqueRegions.includes(selectedRegion)) {
+      setSelectedRegion("All");
+    }
+  }, [projects.length, selectedRegion, uniqueRegions]);
+
+  useEffect(() => {
+    if (projects.length === 0) return;
+    if (selectedType !== "All" && !uniqueProjectTypes.includes(selectedType)) {
+      setSelectedType("All");
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("type");
+        return next;
+      });
+    }
+  }, [projects.length, selectedType, uniqueProjectTypes, setSearchParams]);
 
   const filteredProjects = useMemo(() => {
     let result = [...projects];
 
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.location.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query)
-      );
+      result = result.filter((p) => {
+        const haystack = [
+          p.title,
+          p.location,
+          p.description,
+          p.region,
+          p.province,
+          p.district,
+          p.projectType,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(query);
+      });
     }
 
     if (selectedType !== "All") {
@@ -84,10 +113,6 @@ export const Catalog: React.FC = () => {
 
     return result;
   }, [projects, searchQuery, selectedType, selectedRegion, sortOption, hasSurfaceData]);
-
-  const openProjectDetail = (proj: Project) => {
-    navigate(`/catalog/${proj.id}`);
-  };
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -155,10 +180,11 @@ export const Catalog: React.FC = () => {
                   className="w-full bg-stone-50 border border-stone-200 focus:border-emerald-700 focus:bg-white text-xs p-2.5 rounded-lg outline-none cursor-pointer"
                 >
                   <option value="All">Cualquiera (Todos)</option>
-                  <option value="Playero">Playero (Playa / Sol)</option>
-                  <option value="Campestre">Campestre (Campo / Bosque)</option>
-                  <option value="Urbano">Habilitaciones Urbanas</option>
-                  <option value="Industrial">Zonificación Industrial</option>
+                  {uniqueProjectTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {getProjectTypeFilterLabel(type)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -172,11 +198,17 @@ export const Catalog: React.FC = () => {
                   className="w-full bg-stone-50 border border-stone-200 focus:border-emerald-700 focus:bg-white text-xs p-2.5 rounded-lg outline-none cursor-pointer"
                 >
                   <option value="All">Todo el territorio nacional</option>
-                  {uniqueRegions.map((reg) => (
-                    <option key={reg} value={reg}>
-                      {reg}
+                  {uniqueRegions.length === 0 ? (
+                    <option value="" disabled>
+                      Sin regiones en el catálogo
                     </option>
-                  ))}
+                  ) : (
+                    uniqueRegions.map((reg) => (
+                      <option key={reg} value={reg}>
+                        {reg}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
             </div>
@@ -244,70 +276,14 @@ export const Catalog: React.FC = () => {
                   viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1"
                 }`}
               >
-                {filteredProjects.map((project) => {
-                  const locationLabel = formatProjectLocation(project);
-                  return (
-                    <article
-                      key={project.id}
-                      onClick={() => openProjectDetail(project)}
-                      className={`bg-white border text-left cursor-pointer transition-all flex rounded-xl premium-card-shadow overflow-hidden group border-stone-200/65 hover:border-emerald-700/40 hover:shadow-md ${
-                        viewMode === "grid" ? "flex-col" : "flex-row h-44"
-                      }`}
-                    >
-                      <div
-                        className={`relative bg-stone-100 shrink-0 ${
-                          viewMode === "grid" ? "h-40 w-full" : "h-full w-44"
-                        }`}
-                      >
-                        <img
-                          src={project.imageUrl}
-                          alt={project.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          referrerPolicy="no-referrer"
-                        />
-                        <div className="absolute top-2 left-2">
-                          <span className="text-[8px] font-bold px-2 py-0.5 rounded bg-stone-900 border border-stone-850 text-stone-50 uppercase">
-                            {project.projectType}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-4 flex-1 flex flex-col justify-between">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-0.5 text-[10px] font-mono text-stone-400 uppercase tracking-tight line-clamp-1">
-                            <MapPin className="w-3 h-3 text-emerald-800 shrink-0" />
-                            <span>{locationLabel || project.location}</span>
-                          </div>
-                          <h3 className="font-sans font-bold text-sm text-stone-850 leading-tight group-hover:text-emerald-950 line-clamp-2">
-                            {project.title}
-                          </h3>
-                          <p className="text-stone-500 text-[11px] font-light leading-relaxed line-clamp-2">
-                            {project.description}
-                          </p>
-                        </div>
-
-                        <div className="pt-2 border-t border-stone-100/60 flex items-center justify-between mt-2">
-                          <div className="flex flex-col">
-                            <span className="text-xl font-sans font-extrabold text-emerald-950">
-                              {project.priceSoles > 0 ? `S/. ${project.priceSoles.toLocaleString()}` : "Consultar"}
-                            </span>
-                            {project.availableLots > 0 && (
-                              <span className="text-[10px] font-mono text-stone-400 uppercase">
-                                {project.availableLots} lote{project.availableLots !== 1 ? "s" : ""} libre
-                                {project.availableLots !== 1 ? "s" : ""}
-                              </span>
-                            )}
-                          </div>
-
-                          <span className="inline-flex items-center gap-1 text-[10px] font-sans font-bold text-emerald-850 group-hover:text-emerald-700">
-                            Ver detalle
-                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
+                {filteredProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    layout={viewMode}
+                    variant="catalog"
+                  />
+                ))}
               </div>
             )}
           </main>

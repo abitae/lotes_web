@@ -117,11 +117,26 @@ async function seed() {
   const [bannerRows] = await pool.query("SELECT COUNT(*) AS count FROM banners");
   const count = (bannerRows as { count: number }[])[0].count;
 
-  const { seedSiteContentIfEmpty, consolidateContactForms } = await import("./siteContentSeed.js");
+  const {
+    seedSiteContentIfEmpty,
+    seedAboutContentIfEmpty,
+    ensureAboutHeroBackgroundColumn,
+    ensureHomeAlertTable,
+    ensureHomeAlertVideoColumn,
+    consolidateContactForms,
+  } = await import("./siteContentSeed.js");
   const seededSite = await seedSiteContentIfEmpty();
   if (seededSite) {
     console.log("✓ Contenido del sitio insertado (identidad, garantías, formularios, canales, FAQ)");
   }
+  const seededAbout = await seedAboutContentIfEmpty();
+  if (seededAbout) {
+    console.log("✓ Contenido de la página Nosotros insertado (valores y asesores expertos)");
+  }
+  await ensureAboutHeroBackgroundColumn();
+  await ensureHomeAlertTable();
+  await ensureHomeAlertVideoColumn();
+  console.log("✓ Modal de aviso de inicio verificado");
   await consolidateContactForms();
 
   if (count > 0) {

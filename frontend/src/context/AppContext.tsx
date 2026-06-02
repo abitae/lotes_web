@@ -17,6 +17,11 @@ import {
   FaqItem,
   GuaranteeItem,
   GuaranteeSection,
+  AboutData,
+  AboutPageContent,
+  AboutValue,
+  ExpertAdvisor,
+  HomeAlertModal,
 } from "../types";
 import { api } from "../api";
 import { getAuthToken, setAuthToken, setAdminEmail, getAdminEmail } from "../api/client";
@@ -25,6 +30,8 @@ import {
   DEFAULT_SITE_SETTINGS,
   DEFAULT_GUARANTEES,
   DEFAULT_CONTACT_FORMS,
+  DEFAULT_ABOUT,
+  DEFAULT_HOME_ALERT,
 } from "../config/siteDefaults";
 
 const EMPTY_STATS: DashboardStats = {
@@ -47,6 +54,8 @@ interface AppContextType {
   contactForms: ContactFormConfig[];
   channels: CorporateChannel[];
   faqs: FaqItem[];
+  about: AboutData | null;
+  homeAlert: HomeAlertModal | null;
   loading: boolean;
   adminLoading: boolean;
   error: string | null;
@@ -76,6 +85,14 @@ interface AppContextType {
   addFaq: (faq: Omit<FaqItem, "id">) => Promise<void>;
   updateFaq: (id: string, data: Partial<FaqItem>) => Promise<void>;
   deleteFaq: (id: string) => Promise<void>;
+  updateAboutPage: (data: Partial<AboutPageContent>) => Promise<void>;
+  addAboutValue: (value: Omit<AboutValue, "id">) => Promise<void>;
+  updateAboutValue: (id: string, data: Partial<AboutValue>) => Promise<void>;
+  deleteAboutValue: (id: string) => Promise<void>;
+  addExpertAdvisor: (advisor: Omit<ExpertAdvisor, "id">) => Promise<void>;
+  updateExpertAdvisor: (id: string, data: Partial<ExpertAdvisor>) => Promise<void>;
+  deleteExpertAdvisor: (id: string) => Promise<void>;
+  updateHomeAlert: (data: Partial<HomeAlertModal>) => Promise<void>;
   getStats: () => DashboardStats;
   theme: "light" | "dark";
   toggleTheme: () => void;
@@ -99,6 +116,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [contactForms, setContactForms] = useState<ContactFormConfig[]>(DEFAULT_CONTACT_FORMS);
   const [channels, setChannels] = useState<CorporateChannel[]>([]);
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
+  const [about, setAbout] = useState<AboutData | null>(null);
+  const [homeAlert, setHomeAlert] = useState<HomeAlertModal | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminLoading, setAdminLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +151,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       api.getContactForms(),
       api.getChannels(),
       api.getFaqs(),
+      api.getAbout(),
+      api.getHomeAlert(),
     ]);
 
     if (results[0].status === "fulfilled") setProjects(results[0].value);
@@ -142,6 +163,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (results[5].status === "fulfilled") setContactForms(results[5].value);
     if (results[6].status === "fulfilled") setChannels(results[6].value);
     if (results[7].status === "fulfilled") setFaqs(results[7].value);
+    if (results[8].status === "fulfilled") setAbout(results[8].value);
+    if (results[9].status === "fulfilled") setHomeAlert(results[9].value);
 
     const failed = results.filter((r) => r.status === "rejected");
     if (failed.length === results.length) {
@@ -346,6 +369,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setFaqs((prev) => prev.filter((f) => f.id !== id));
   };
 
+  const updateAboutPage = async (data: Partial<AboutPageContent>) => {
+    const updated = await api.updateAboutPage(data);
+    setAbout((prev) => ({
+      page: updated,
+      values: prev?.values ?? DEFAULT_ABOUT.values,
+      advisors: prev?.advisors ?? DEFAULT_ABOUT.advisors,
+    }));
+  };
+
+  const addAboutValue = async (value: Omit<AboutValue, "id">) => {
+    const created = await api.createAboutValue(value);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: [...(prev?.values ?? []), created],
+      advisors: prev?.advisors ?? DEFAULT_ABOUT.advisors,
+    }));
+  };
+
+  const updateAboutValue = async (id: string, data: Partial<AboutValue>) => {
+    const updated = await api.updateAboutValue(id, data);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: (prev?.values ?? []).map((v) => (v.id === id ? updated : v)),
+      advisors: prev?.advisors ?? DEFAULT_ABOUT.advisors,
+    }));
+  };
+
+  const deleteAboutValue = async (id: string) => {
+    await api.deleteAboutValue(id);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: (prev?.values ?? []).filter((v) => v.id !== id),
+      advisors: prev?.advisors ?? DEFAULT_ABOUT.advisors,
+    }));
+  };
+
+  const addExpertAdvisor = async (advisor: Omit<ExpertAdvisor, "id">) => {
+    const created = await api.createExpertAdvisor(advisor);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: prev?.values ?? DEFAULT_ABOUT.values,
+      advisors: [...(prev?.advisors ?? []), created],
+    }));
+  };
+
+  const updateExpertAdvisor = async (id: string, data: Partial<ExpertAdvisor>) => {
+    const updated = await api.updateExpertAdvisor(id, data);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: prev?.values ?? DEFAULT_ABOUT.values,
+      advisors: (prev?.advisors ?? []).map((a) => (a.id === id ? updated : a)),
+    }));
+  };
+
+  const deleteExpertAdvisor = async (id: string) => {
+    await api.deleteExpertAdvisor(id);
+    setAbout((prev) => ({
+      page: prev?.page ?? DEFAULT_ABOUT.page,
+      values: prev?.values ?? DEFAULT_ABOUT.values,
+      advisors: (prev?.advisors ?? []).filter((a) => a.id !== id),
+    }));
+  };
+
+  const updateHomeAlert = async (data: Partial<HomeAlertModal>) => {
+    const updated = await api.updateHomeAlert(data);
+    setHomeAlert(updated);
+  };
+
   const getStats = () => stats;
 
   return (
@@ -361,6 +452,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         contactForms,
         channels,
         faqs,
+        about,
+        homeAlert,
         loading,
         adminLoading,
         error,
@@ -390,6 +483,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addFaq,
         updateFaq,
         deleteFaq,
+        updateAboutPage,
+        addAboutValue,
+        updateAboutValue,
+        deleteAboutValue,
+        addExpertAdvisor,
+        updateExpertAdvisor,
+        deleteExpertAdvisor,
+        updateHomeAlert,
         getStats,
         theme,
         toggleTheme,

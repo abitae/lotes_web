@@ -25,6 +25,28 @@ async function migrate() {
     );
     await connection.query(`USE \`${dbName}\``);
     await connection.query(schema);
+
+    const defaultHeroBg =
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1600";
+    const [cols] = await connection.query(
+      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'about_page' AND COLUMN_NAME = 'hero_background_image_url'`,
+      [dbName]
+    );
+    if ((cols as { COLUMN_NAME: string }[]).length === 0) {
+      await connection.query(
+        `ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL AFTER hero_description`
+      );
+      await connection.query(
+        `UPDATE about_page SET hero_background_image_url = ? WHERE hero_background_image_url IS NULL OR hero_background_image_url = ''`,
+        [defaultHeroBg]
+      );
+      await connection.query(
+        `ALTER TABLE about_page MODIFY hero_background_image_url TEXT NOT NULL`
+      );
+      console.log("✓ Columna hero_background_image_url añadida a about_page");
+    }
+
     console.log(`✓ Base de datos "${dbName}" y tablas creadas correctamente`);
   } finally {
     await connection.end();

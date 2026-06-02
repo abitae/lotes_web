@@ -15,6 +15,8 @@ import {
   FileText,
   Phone,
   HelpCircle,
+  Users,
+  Megaphone,
 } from "lucide-react";
 
 export const AdminSidebar: React.FC = () => {
@@ -136,6 +138,39 @@ export const AdminSidebar: React.FC = () => {
             <HelpCircle className="w-3.5 h-3.5 shrink-0" />
             <span>Preguntas Frecuentes</span>
           </div>
+        </NavLink>
+
+        <NavLink
+          to="/admin/home-alert"
+          className={({ isActive }) =>
+            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
+              isActive
+                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
+                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
+            }`
+          }
+        >
+          <div className="flex items-center gap-2">
+            <Megaphone className="w-3.5 h-3.5 shrink-0" />
+            <span>Aviso Modal Inicio</span>
+          </div>
+        </NavLink>
+
+        <NavLink
+          to="/admin/about"
+          className={({ isActive }) =>
+            `flex items-center justify-between px-2.5 py-1.5 rounded transition-all text-xs font-medium ${
+              isActive
+                ? "bg-[var(--bg)] border-l-2 border-[var(--accent)] text-[var(--accent)]"
+                : "hover:bg-[var(--bg)]/55 text-[var(--text-s)] hover:text-[var(--text-p)]"
+            }`
+          }
+        >
+          <div className="flex items-center gap-2">
+            <Users className="w-3.5 h-3.5 shrink-0" />
+            <span>Página Nosotros</span>
+          </div>
+          <span className="font-mono text-[8px] opacity-60">/about</span>
         </NavLink>
       </nav>
 

@@ -5,6 +5,33 @@
 
 import type { Project } from "../types";
 
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+  Playero: "Playero (Playa / Sol)",
+  Campestre: "Campestre (Campo / Bosque)",
+  Urbano: "Urbano (Ciudad)",
+  Industrial: "Zonificación Industrial",
+};
+
+/** Valores únicos de región/departamento presentes en el catálogo cargado. */
+export function getUniqueRegionsFromProjects(projects: Project[]): string[] {
+  const values = projects
+    .map((p) => p.region?.trim())
+    .filter((r): r is string => Boolean(r));
+  return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, "es"));
+}
+
+/** Tipos de zona únicos según los proyectos actuales (API / catálogo). */
+export function getUniqueProjectTypesFromProjects(projects: Project[]): string[] {
+  const values = projects
+    .map((p) => p.projectType?.trim())
+    .filter((t): t is string => Boolean(t));
+  return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, "es"));
+}
+
+export function getProjectTypeFilterLabel(type: string): string {
+  return PROJECT_TYPE_LABELS[type] ?? type;
+}
+
 /** Ubicación corta para tarjetas: "Provincia - Distrito" */
 export function formatProjectLocation(
   project: Pick<Project, "province" | "district" | "location" | "region">

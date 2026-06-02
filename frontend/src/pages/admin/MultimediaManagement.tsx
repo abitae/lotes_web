@@ -197,15 +197,17 @@ export const MultimediaManagement: React.FC = () => {
                   >
                     <img
                       src={activeBanners[currentBannerIndex]?.imageUrl}
-                      alt={activeBanners[currentBannerIndex]?.title}
-                      className="w-full h-full object-cover opacity-15 dark:opacity-25"
+                      alt=""
+                      aria-hidden
+                      className="hero-banner-bg-image w-full h-full object-cover"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute inset-0 admin-gradient-overlay" />
+                    <div className="absolute inset-0 hero-banner-scrim" />
+                    <div className="absolute inset-0 hero-banner-scrim-vertical" />
                   </motion.div>
                 </AnimatePresence>
                 
-                <div className="relative z-10 space-y-2 pointer-events-none max-w-sm">
+                <div className="hero-banner-content-panel relative z-10 space-y-2 pointer-events-none max-w-sm rounded-lg p-4">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={currentBannerIndex}
@@ -216,18 +218,18 @@ export const MultimediaManagement: React.FC = () => {
                       className="space-y-2"
                     >
                       {activeBanners[currentBannerIndex]?.badgeText && (
-                        <span className="inline-block bg-[var(--accent)] text-white text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded">
+                        <span className="hero-banner-badge inline-block text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded">
                           {activeBanners[currentBannerIndex]?.badgeText}
                         </span>
                       )}
-                      <h4 className="font-sans font-extrabold text-sm text-[var(--text-p)] leading-tight">
+                      <h4 className="hero-banner-title font-sans font-extrabold text-sm leading-tight">
                         {activeBanners[currentBannerIndex]?.title}
                       </h4>
-                      <p className="font-sans text-[10px] text-[var(--text-s)] font-light line-clamp-2">
+                      <p className="hero-banner-subtitle font-sans text-[10px] font-normal line-clamp-2">
                         {activeBanners[currentBannerIndex]?.subtitle}
                       </p>
                       <div>
-                        <span className="inline-block bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/30 font-sans font-semibold text-[9px] px-2.5 py-1 rounded">
+                        <span className="inline-block bg-[var(--accent)] text-white font-sans font-semibold text-[9px] px-2.5 py-1 rounded shadow-sm">
                           {activeBanners[currentBannerIndex]?.buttonText}
                         </span>
                       </div>

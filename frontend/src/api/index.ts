@@ -1,13 +1,18 @@
 import { apiRequest } from "./client";
 import type {
+  AboutData,
+  AboutPageContent,
+  AboutValue,
   Banner,
   ContactFormConfig,
   CorporateChannel,
   DashboardStats,
+  ExpertAdvisor,
   FaqItem,
   GuaranteeItem,
   GuaranteeSection,
   GuaranteesData,
+  HomeAlertModal,
   Inquiry,
   Project,
   SiteSettings,
@@ -15,7 +20,8 @@ import type {
 } from "../types";
 
 export const api = {
-  health: () => apiRequest<{ ok: boolean }>("/health"),
+  health: () =>
+    apiRequest<{ ok: boolean; timestamp: string }>("/health?format=json"),
 
   login: (email: string, password: string) =>
     apiRequest<{ token: string; email: string }>("/auth/login", {
@@ -87,4 +93,24 @@ export const api = {
     apiRequest<FaqItem>(`/faqs/${id}`, { method: "PUT", auth: true, body: JSON.stringify(data) }),
   deleteFaq: (id: string) =>
     apiRequest<void>(`/faqs/${id}`, { method: "DELETE", auth: true }),
+
+  getAbout: () => apiRequest<AboutData>("/about"),
+  updateAboutPage: (data: Partial<AboutPageContent>) =>
+    apiRequest<AboutPageContent>("/about/page", { method: "PUT", auth: true, body: JSON.stringify(data) }),
+  createAboutValue: (data: Omit<AboutValue, "id">) =>
+    apiRequest<AboutValue>("/about/values", { method: "POST", auth: true, body: JSON.stringify(data) }),
+  updateAboutValue: (id: string, data: Partial<AboutValue>) =>
+    apiRequest<AboutValue>(`/about/values/${id}`, { method: "PUT", auth: true, body: JSON.stringify(data) }),
+  deleteAboutValue: (id: string) =>
+    apiRequest<void>(`/about/values/${id}`, { method: "DELETE", auth: true }),
+  createExpertAdvisor: (data: Omit<ExpertAdvisor, "id">) =>
+    apiRequest<ExpertAdvisor>("/about/advisors", { method: "POST", auth: true, body: JSON.stringify(data) }),
+  updateExpertAdvisor: (id: string, data: Partial<ExpertAdvisor>) =>
+    apiRequest<ExpertAdvisor>(`/about/advisors/${id}`, { method: "PUT", auth: true, body: JSON.stringify(data) }),
+  deleteExpertAdvisor: (id: string) =>
+    apiRequest<void>(`/about/advisors/${id}`, { method: "DELETE", auth: true }),
+
+  getHomeAlert: () => apiRequest<HomeAlertModal>("/home-alert"),
+  updateHomeAlert: (data: Partial<HomeAlertModal>) =>
+    apiRequest<HomeAlertModal>("/home-alert", { method: "PUT", auth: true, body: JSON.stringify(data) }),
 };

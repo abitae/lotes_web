@@ -183,3 +183,148 @@
 :root .text-stone-500 {
   color: var(--text-s) !important;
 }
+
+/* Hero banner — imagen de fondo visible + lectura en columna de texto */
+.hero-banner-bg-image {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.hero-banner-scrim {
+  /* Velo suave solo en la zona del texto; la derecha deja ver la foto */
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 28%,
+    color-mix(in srgb, var(--bg) 42%, transparent) 48%,
+    color-mix(in srgb, var(--bg) 18%, transparent) 62%,
+    transparent 78%
+  );
+}
+
+.hero-banner-scrim-vertical {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 25%, transparent) 0%,
+    transparent 35%,
+    color-mix(in srgb, var(--bg) 45%, transparent) 88%,
+    color-mix(in srgb, var(--bg) 75%, transparent) 100%
+  );
+}
+
+.hero-banner-content-panel {
+  background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  box-shadow: 0 8px 32px color-mix(in srgb, #000000 8%, transparent);
+}
+
+.dark .hero-banner-content-panel {
+  background: color-mix(in srgb, var(--card-bg) 58%, transparent);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+}
+
+.hero-banner-title {
+  color: var(--text-p);
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 2px 12px color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+.dark .hero-banner-title {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.75),
+    0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.hero-banner-subtitle {
+  color: var(--text-p);
+  opacity: 0.9;
+}
+
+.dark .hero-banner-subtitle {
+  opacity: 0.92;
+}
+
+.hero-banner-badge {
+  background-color: var(--accent);
+  color: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, #000000 30%);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.hero-banner-controls {
+  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px color-mix(in srgb, #000000 12%, transparent);
+}
+
+.dark .hero-banner-controls {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* Tarjetas de proyecto — clic en toda la superficie */
+.project-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+}
+
+.project-card--home:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.project-card--catalog:hover {
+  border-color: color-mix(in srgb, #047857 40%, #d4d4d8);
+}
+
+/* Hero Nosotros — fondo con imagen y texto centrado legible */
+.about-hero-scrim {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 35%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 45%,
+    color-mix(in srgb, var(--bg) 78%, transparent) 100%
+  );
+}
+
+/* Carruseles infinitos (proyectos en inicio, asesores en /about) */
+.infinite-marquee-track,
+.expert-advisors-marquee-track {
+  animation: infinite-marquee-scroll var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.infinite-marquee-track:hover,
+.expert-advisors-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes infinite-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--marquee-shift, 50%)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .infinite-marquee-track,
+  .expert-advisors-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  #expert-advisors-carousel .pointer-events-none,
+  #home-projects-carousel .pointer-events-none {
+    display: none;
+  }
+}

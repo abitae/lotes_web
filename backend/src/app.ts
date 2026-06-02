@@ -14,7 +14,10 @@ import guaranteesRoutes from "./routes/guarantees.routes.js";
 import contactFormsRoutes from "./routes/contactForms.routes.js";
 import channelsRoutes from "./routes/channels.routes.js";
 import faqsRoutes from "./routes/faqs.routes.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import aboutRoutes from "./routes/about.routes.js";
+import homeAlertRoutes from "./routes/homeAlert.routes.js";
+import { asyncHandler, errorHandler } from "./middleware/errorHandler.js";
+import { healthCheck } from "./controllers/health.controller.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, "..", "uploads");
@@ -25,9 +28,7 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:3000" }));
 app.use(express.json());
 app.use("/uploads", express.static(uploadDir));
 
-app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, timestamp: new Date().toISOString() });
-});
+app.get("/api/health", asyncHandler(healthCheck));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectsRoutes);
@@ -41,6 +42,8 @@ app.use("/api/guarantees", guaranteesRoutes);
 app.use("/api/contact-forms", contactFormsRoutes);
 app.use("/api/channels", channelsRoutes);
 app.use("/api/faqs", faqsRoutes);
+app.use("/api/about", aboutRoutes);
+app.use("/api/home-alert", homeAlertRoutes);
 
 app.use(errorHandler);
 

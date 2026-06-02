@@ -1,8 +1,16 @@
 import type {
+  AboutPage,
+  AboutPageRow,
+  AboutValue,
+  AboutValueRow,
   ContactFormConfig,
   ContactFormRow,
   CorporateChannel,
   CorporateChannelRow,
+  ExpertAdvisor,
+  ExpertAdvisorRow,
+  HomeAlertModal,
+  HomeAlertModalRow,
   FaqItem,
   FaqRow,
   GuaranteeItem,
@@ -92,5 +100,60 @@ export function mapFaq(row: FaqRow): FaqItem {
     answer: row.answer,
     sortOrder: row.sort_order,
     isActive: Boolean(row.is_active),
+  };
+}
+
+export function mapAboutPage(row: AboutPageRow): AboutPage {
+  return {
+    heroEyebrow: row.hero_eyebrow,
+    heroHeading: row.hero_heading,
+    heroDescription: row.hero_description,
+    heroBackgroundImageUrl: row.hero_background_image_url,
+    missionHeading: row.mission_heading,
+    missionDescription: row.mission_description,
+    visionHeading: row.vision_heading,
+    visionDescription: row.vision_description,
+    valuesEyebrow: row.values_eyebrow,
+    valuesHeading: row.values_heading,
+    valuesDescription: row.values_description,
+    advisorsEyebrow: row.advisors_eyebrow,
+    advisorsHeading: row.advisors_heading,
+    advisorsDescription: row.advisors_description,
+  };
+}
+
+export function mapAboutValue(row: AboutValueRow): AboutValue {
+  return {
+    id: row.id,
+    icon: row.icon,
+    title: row.title,
+    description: row.description,
+    sortOrder: row.sort_order,
+    isActive: Boolean(row.is_active),
+  };
+}
+
+export function mapExpertAdvisor(row: ExpertAdvisorRow): ExpertAdvisor {
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role,
+    bio: row.bio,
+    imageUrl: row.image_url,
+    sortOrder: row.sort_order,
+    isActive: Boolean(row.is_active),
+  };
+}
+
+export function mapHomeAlertModal(row: HomeAlertModalRow): HomeAlertModal {
+  return {
+    isEnabled: Boolean(row.is_enabled),
+    title: row.title,
+    description: row.description,
+    imageUrl: row.image_url,
+    videoUrl: row.video_url,
+    buttonText: row.button_text,
+    buttonLink: row.button_link,
+    updatedAt: row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at),
   };
 }

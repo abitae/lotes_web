@@ -105,3 +105,55 @@ CREATE TABLE IF NOT EXISTS faqs (
   is_active  TINYINT(1) NOT NULL DEFAULT 1,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS about_page (
+  id                    TINYINT PRIMARY KEY DEFAULT 1,
+  hero_eyebrow               VARCHAR(255) NOT NULL,
+  hero_heading               VARCHAR(255) NOT NULL,
+  hero_description           TEXT NOT NULL,
+  hero_background_image_url  TEXT NOT NULL,
+  mission_heading       VARCHAR(255) NOT NULL,
+  mission_description   TEXT NOT NULL,
+  vision_heading        VARCHAR(255) NOT NULL,
+  vision_description    TEXT NOT NULL,
+  values_eyebrow        VARCHAR(255) NOT NULL,
+  values_heading        VARCHAR(255) NOT NULL,
+  values_description    TEXT NOT NULL,
+  advisors_eyebrow      VARCHAR(255) NOT NULL,
+  advisors_heading      VARCHAR(255) NOT NULL,
+  advisors_description  TEXT NOT NULL,
+  updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS about_values (
+  id          VARCHAR(36) PRIMARY KEY,
+  icon        VARCHAR(50) NOT NULL,
+  title       VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  sort_order  INT NOT NULL DEFAULT 0,
+  is_active   TINYINT(1) NOT NULL DEFAULT 1,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS expert_advisors (
+  id          VARCHAR(36) PRIMARY KEY,
+  name        VARCHAR(255) NOT NULL,
+  role        VARCHAR(255) NOT NULL,
+  bio         TEXT NOT NULL,
+  image_url   TEXT NOT NULL,
+  sort_order  INT NOT NULL DEFAULT 0,
+  is_active   TINYINT(1) NOT NULL DEFAULT 1,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS home_alert_modal (
+  id          TINYINT PRIMARY KEY DEFAULT 1,
+  is_enabled  TINYINT(1) NOT NULL DEFAULT 0,
+  title       VARCHAR(255) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  image_url   TEXT NULL,
+  video_url   TEXT NULL,
+  button_text VARCHAR(255) NULL,
+  button_link VARCHAR(512) NULL,
+  updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
