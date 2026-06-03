@@ -27,7 +27,7 @@ export async function createChannel(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO corporate_channels (id, channel_type, label, value, extra_info, sort_order, is_active)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [id, channelType, label, value, extraInfo ?? null, sortOrder ?? 0, isActive !== false ? 1 : 0]
+    [id, channelType, label, value, extraInfo ?? null, sortOrder ?? 0, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM corporate_channels WHERE id = ?", [id]);
@@ -59,7 +59,7 @@ export async function updateChannel(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -74,7 +74,7 @@ export async function updateChannel(req: Request, res: Response) {
 
 export async function deleteChannel(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const [result] = await pool.query("DELETE FROM corporate_channels WHERE id = ?", [id]);
+  const [, result] = await pool.query("DELETE FROM corporate_channels WHERE id = ?", [id]);
   if ((result as { affectedRows: number }).affectedRows === 0) {
     throw new AppError(404, "Canal no encontrado");
   }

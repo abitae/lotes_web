@@ -109,7 +109,7 @@ const INITIAL_INQUIRIES = [
   },
 ];
 
-function toMySQLDatetime(iso: string): string {
+function toPgTimestamp(iso: string): string {
   return iso.replace("T", " ").replace(/\.\d{3}Z$/, "");
 }
 
@@ -149,7 +149,7 @@ async function seed() {
     await pool.query(
       `INSERT INTO banners (id, title, subtitle, button_text, image_url, badge_text, is_active)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [b.id, b.title, b.subtitle, b.buttonText, b.imageUrl, b.badgeText ?? null, b.isActive ? 1 : 0]
+      [b.id, b.title, b.subtitle, b.buttonText, b.imageUrl, b.badgeText ?? null, b.isActive]
     );
   }
 
@@ -165,7 +165,7 @@ async function seed() {
     await pool.query(
       `INSERT INTO inquiries (id, full_name, phone, email, project_interest, message, status, notes, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [i.id, i.fullName, i.phone, i.email, i.projectInterest, i.message, i.status, i.notes, toMySQLDatetime(i.createdAt)]
+      [i.id, i.fullName, i.phone, i.email, i.projectInterest, i.message, i.status, i.notes, toPgTimestamp(i.createdAt)]
     );
   }
 

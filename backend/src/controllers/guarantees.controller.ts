@@ -59,7 +59,7 @@ export async function createGuaranteeItem(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO guarantee_items (id, icon, title, description, sort_order, is_active)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [id, icon, title, description, sortOrder ?? 0, isActive !== false ? 1 : 0]
+    [id, icon, title, description, sortOrder ?? 0, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM guarantee_items WHERE id = ?", [id]);
@@ -86,7 +86,7 @@ export async function updateGuaranteeItem(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -101,7 +101,7 @@ export async function updateGuaranteeItem(req: Request, res: Response) {
 
 export async function deleteGuaranteeItem(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const [result] = await pool.query("DELETE FROM guarantee_items WHERE id = ?", [id]);
+  const [, result] = await pool.query("DELETE FROM guarantee_items WHERE id = ?", [id]);
   if ((result as { affectedRows: number }).affectedRows === 0) {
     throw new AppError(404, "Tarjeta no encontrada");
   }

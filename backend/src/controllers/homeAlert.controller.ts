@@ -29,7 +29,7 @@ export async function updateHomeAlert(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isEnabled" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isEnabled" ? Boolean(body[key]) : body[key]);
     }
   }
 

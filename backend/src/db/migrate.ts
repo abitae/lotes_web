@@ -2,7 +2,7 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import mysql from "mysql2/promise";
+import pg from "pg";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,45 +11,67 @@ async function migrate() {
   const schemaPath = path.join(__dirname, "schema.sql");
   const schema = fs.readFileSync(schemaPath, "utf-8");
 
-  const connection = await mysql.createConnection({
+  const adminPool = new pg.Pool({
     host: process.env.DB_HOST || "localhost",
-    port: Number(process.env.DB_PORT) || 3306,
-    user: process.env.DB_USER || "root",
+    port: Number(process.env.DB_PORT) || 5432,
+    user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "",
-    multipleStatements: true,
+    database: process.env.DB_ADMIN_DATABASE || "postgres",
   });
 
   try {
-    await connection.query(
-      `CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+    const existing = await adminPool.query(
+      "SELECT 1 FROM pg_database WHERE datname = $1",
+      [dbName],
     );
-    await connection.query(`USE \`${dbName}\``);
-    await connection.query(schema);
+
+    if (existing.rowCount === 0) {
+      await adminPool.query(`CREATE DATABASE "${dbName}"`);
+      console.log(`✓ Base de datos "${dbName}" creada`);
+    }
+  } finally {
+    await adminPool.end();
+  }
+
+  const pool = new pg.Pool({
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT) || 5432,
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "",
+    database: dbName,
+  });
+
+  try {
+    await pool.query(schema);
 
     const defaultHeroBg =
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1600";
-    const [cols] = await connection.query(
-      `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'about_page' AND COLUMN_NAME = 'hero_background_image_url'`,
-      [dbName]
+
+    const heroColumn = await pool.query(
+      `SELECT column_name
+       FROM information_schema.columns
+       WHERE table_schema = current_schema()
+         AND table_name = 'about_page'
+         AND column_name = 'hero_background_image_url'`,
     );
-    if ((cols as { COLUMN_NAME: string }[]).length === 0) {
-      await connection.query(
-        `ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL AFTER hero_description`
+
+    if (heroColumn.rowCount === 0) {
+      await pool.query(
+        "ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL",
       );
-      await connection.query(
-        `UPDATE about_page SET hero_background_image_url = ? WHERE hero_background_image_url IS NULL OR hero_background_image_url = ''`,
-        [defaultHeroBg]
+      await pool.query(
+        "UPDATE about_page SET hero_background_image_url = $1 WHERE hero_background_image_url IS NULL OR hero_background_image_url = ''",
+        [defaultHeroBg],
       );
-      await connection.query(
-        `ALTER TABLE about_page MODIFY hero_background_image_url TEXT NOT NULL`
+      await pool.query(
+        "ALTER TABLE about_page ALTER COLUMN hero_background_image_url SET NOT NULL",
       );
       console.log("✓ Columna hero_background_image_url añadida a about_page");
     }
 
     console.log(`✓ Base de datos "${dbName}" y tablas creadas correctamente`);
   } finally {
-    await connection.end();
+    await pool.end();
   }
 }
 

@@ -74,7 +74,7 @@ export async function createAboutValue(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO about_values (id, icon, title, description, sort_order, is_active)
      VALUES (?, ?, ?, ?, ?, ?)`,
-    [id, icon, title, description, sortOrder ?? 0, isActive !== false ? 1 : 0]
+    [id, icon, title, description, sortOrder ?? 0, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM about_values WHERE id = ?", [id]);
@@ -101,7 +101,7 @@ export async function updateAboutValue(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -116,7 +116,7 @@ export async function updateAboutValue(req: Request, res: Response) {
 
 export async function deleteAboutValue(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const [result] = await pool.query("DELETE FROM about_values WHERE id = ?", [id]);
+  const [, result] = await pool.query("DELETE FROM about_values WHERE id = ?", [id]);
   if ((result as { affectedRows: number }).affectedRows === 0) {
     throw new AppError(404, "Valor no encontrado");
   }
@@ -133,7 +133,7 @@ export async function createExpertAdvisor(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO expert_advisors (id, name, role, bio, image_url, sort_order, is_active)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [id, name, role, bio, imageUrl, sortOrder ?? 0, isActive !== false ? 1 : 0]
+    [id, name, role, bio, imageUrl, sortOrder ?? 0, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM expert_advisors WHERE id = ?", [id]);
@@ -161,7 +161,7 @@ export async function updateExpertAdvisor(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -176,7 +176,7 @@ export async function updateExpertAdvisor(req: Request, res: Response) {
 
 export async function deleteExpertAdvisor(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const [result] = await pool.query("DELETE FROM expert_advisors WHERE id = ?", [id]);
+  const [, result] = await pool.query("DELETE FROM expert_advisors WHERE id = ?", [id]);
   if ((result as { affectedRows: number }).affectedRows === 0) {
     throw new AppError(404, "Asesor no encontrado");
   }

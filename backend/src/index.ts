@@ -10,9 +10,9 @@ async function start() {
 
   try {
     await pool.query("SELECT 1");
-    console.log("✓ Conexión a MySQL establecida");
+    console.log("✓ Conexión a PostgreSQL establecida");
   } catch (err) {
-    console.error("✗ No se pudo conectar a MySQL. Ejecuta: npm run db:setup");
+    console.error("✗ No se pudo conectar a PostgreSQL. Ejecuta: npm run db:setup");
     console.error(err instanceof Error ? err.message : err);
     process.exit(1);
   }

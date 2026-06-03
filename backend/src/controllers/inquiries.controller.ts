@@ -61,7 +61,7 @@ export async function updateInquiry(req: Request, res: Response) {
 }
 
 export async function deleteInquiry(req: Request, res: Response) {
-  const [result] = await pool.query("DELETE FROM inquiries WHERE id = ?", [req.params.id]);
+  const [, result] = await pool.query("DELETE FROM inquiries WHERE id = ?", [req.params.id]);
   const affected = (result as { affectedRows: number }).affectedRows;
 
   if (affected === 0) {

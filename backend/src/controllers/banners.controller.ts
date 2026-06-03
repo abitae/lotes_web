@@ -22,7 +22,7 @@ export async function createBanner(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO banners (id, title, subtitle, button_text, image_url, badge_text, is_active)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [id, title, subtitle, buttonText, imageUrl, badgeText ?? null, isActive !== false ? 1 : 0]
+    [id, title, subtitle, buttonText, imageUrl, badgeText ?? null, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM banners WHERE id = ?", [id]);
@@ -51,7 +51,7 @@ export async function updateBanner(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -67,7 +67,7 @@ export async function updateBanner(req: Request, res: Response) {
 }
 
 export async function deleteBanner(req: Request, res: Response) {
-  const [result] = await pool.query("DELETE FROM banners WHERE id = ?", [req.params.id]);
+  const [, result] = await pool.query("DELETE FROM banners WHERE id = ?", [req.params.id]);
   const affected = (result as { affectedRows: number }).affectedRows;
 
   if (affected === 0) {

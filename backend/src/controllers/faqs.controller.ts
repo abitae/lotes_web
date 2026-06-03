@@ -18,7 +18,7 @@ export async function createFaq(req: Request, res: Response) {
   await pool.query(
     `INSERT INTO faqs (id, question, answer, sort_order, is_active)
      VALUES (?, ?, ?, ?, ?)`,
-    [id, question, answer, sortOrder ?? 0, isActive !== false ? 1 : 0]
+    [id, question, answer, sortOrder ?? 0, isActive !== false]
   );
 
   const [rows] = await pool.query("SELECT * FROM faqs WHERE id = ?", [id]);
@@ -44,7 +44,7 @@ export async function updateFaq(req: Request, res: Response) {
   for (const [key, column] of Object.entries(mapping)) {
     if (body[key] !== undefined) {
       fields.push(`${column} = ?`);
-      values.push(key === "isActive" ? (body[key] ? 1 : 0) : body[key]);
+      values.push(key === "isActive" ? Boolean(body[key]) : body[key]);
     }
   }
 
@@ -59,7 +59,7 @@ export async function updateFaq(req: Request, res: Response) {
 
 export async function deleteFaq(req: Request, res: Response) {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-  const [result] = await pool.query("DELETE FROM faqs WHERE id = ?", [id]);
+  const [, result] = await pool.query("DELETE FROM faqs WHERE id = ?", [id]);
   if ((result as { affectedRows: number }).affectedRows === 0) {
     throw new AppError(404, "FAQ no encontrada");
   }

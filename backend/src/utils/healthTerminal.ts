@@ -69,7 +69,7 @@ export function buildHealthReport(
     port: Number(process.env.PORT) || 4000,
     database: {
       ok: dbOk,
-      host: `${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "3306"}`,
+      host: `${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "5432"}`,
       name: process.env.DB_NAME || "lotes_web",
       latencyMs: dbLatencyMs,
       error: dbError,
@@ -91,7 +91,7 @@ export function renderHealthTerminal(report: HealthReport): string {
     statusLine(report.ok, "API REMATE PANEL", "online"),
     statusLine(
       report.database.ok,
-      "MySQL",
+      "PostgreSQL",
       report.database.ok
         ? `${report.database.name} (${report.database.latencyMs}ms)`
         : report.database.error || "desconectado"

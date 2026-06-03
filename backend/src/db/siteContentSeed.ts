@@ -274,7 +274,7 @@ export async function seedHomeAlertIfEmpty(): Promise<boolean> {
   await pool.query(
     `INSERT INTO home_alert_modal (id, is_enabled, title, description, image_url, video_url, button_text, button_link)
      VALUES (1, ?, ?, ?, ?, ?, ?, ?)`,
-    [a.isEnabled ? 1 : 0, a.title, a.description, a.imageUrl, a.videoUrl, a.buttonText, a.buttonLink]
+    [a.isEnabled, a.title, a.description, a.imageUrl, a.videoUrl, a.buttonText, a.buttonLink]
   );
   return true;
 }
@@ -282,15 +282,15 @@ export async function seedHomeAlertIfEmpty(): Promise<boolean> {
 export async function ensureHomeAlertTable(): Promise<void> {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS home_alert_modal (
-      id          TINYINT PRIMARY KEY DEFAULT 1,
-      is_enabled  TINYINT(1) NOT NULL DEFAULT 0,
+      id          SMALLINT PRIMARY KEY DEFAULT 1,
+      is_enabled  BOOLEAN NOT NULL DEFAULT FALSE,
       title       VARCHAR(255) NOT NULL DEFAULT '',
       description TEXT NOT NULL,
       image_url   TEXT NULL,
       video_url   TEXT NULL,
       button_text VARCHAR(255) NULL,
       button_link VARCHAR(512) NULL,
-      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
   const [rows] = await pool.query("SELECT COUNT(*) AS count FROM home_alert_modal");
@@ -301,22 +301,28 @@ export async function ensureHomeAlertTable(): Promise<void> {
 
 export async function ensureHomeAlertVideoColumn(): Promise<void> {
   const [cols] = await pool.query(
-    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'home_alert_modal' AND COLUMN_NAME = 'video_url'`
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'home_alert_modal'
+       AND column_name = 'video_url'`
   );
-  if ((cols as { COLUMN_NAME: string }[]).length === 0) {
-    await pool.query(`ALTER TABLE home_alert_modal ADD COLUMN video_url TEXT NULL AFTER image_url`);
+  if ((cols as { column_name: string }[]).length === 0) {
+    await pool.query("ALTER TABLE home_alert_modal ADD COLUMN video_url TEXT NULL");
   }
 }
 
 export async function ensureAboutHeroBackgroundColumn(): Promise<void> {
   const [cols] = await pool.query(
-    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'about_page' AND COLUMN_NAME = 'hero_background_image_url'`
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'about_page'
+       AND column_name = 'hero_background_image_url'`
   );
-  if ((cols as { COLUMN_NAME: string }[]).length === 0) {
+  if ((cols as { column_name: string }[]).length === 0) {
     await pool.query(
-      `ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL AFTER hero_description`
+      "ALTER TABLE about_page ADD COLUMN hero_background_image_url TEXT NULL"
     );
   }
   await pool.query(
