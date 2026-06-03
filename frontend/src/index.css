@@ -107,7 +107,7 @@
 }
 
 /* Cards & Elevated Containers inside admin panel */
-.bg-stone-900, .bg-stone-850, .bg-stone-850\/60, .bg-[#18181b] {
+.bg-stone-900, .bg-stone-850, .bg-stone-850\/60, [class*="bg-[#18181b]"] {
   background-color: var(--card-bg) !important;
 }
 
@@ -117,12 +117,12 @@
 }
 
 /* Primary text colors (includes strong tags, panel text labels, and title headings) */
-.text-stone-50, .text-stone-100, .text-stone-200, .text-stone-300, .text-[#fafafa], .text-stone-900, .text-stone-950, .text-emerald-950, .text-stone-800, .text-stone-850, .text-stone-900\/90 {
+.text-stone-50, .text-stone-100, .text-stone-200, .text-stone-300, [class*="text-[#fafafa]"], .text-stone-900, .text-stone-950, .text-emerald-950, .text-stone-800, .text-stone-850, .text-stone-900\/90 {
   color: var(--text-p) !important;
 }
 
 /* Secondary & Subtitle Text colors */
-.text-stone-400, .text-stone-500, .text-stone-600, .text-stone-550, .text-[#a1a1aa] {
+.text-stone-400, .text-stone-500, .text-stone-600, .text-stone-550, [class*="text-[#a1a1aa]"] {
   color: var(--text-muted) !important;
 }
 
@@ -135,12 +135,12 @@
 }
 
 /* Borders & Separators */
-.border-stone-200, .border-stone-100, .border-stone-200\/80, .border-stone-300, .border-stone-800, .border-stone-855, .border-stone-850, .border-[#27272a] {
+.border-stone-200, .border-stone-100, .border-stone-200\/80, .border-stone-300, .border-stone-800, .border-stone-855, .border-stone-850, [class*="border-[#27272a]"] {
   border-color: var(--border) !important;
 }
 
 /* Active buttons map to clean steel blue and hover states */
-.bg-emerald-800, .bg-[#064e3b], .bg-emerald-900, .bg-[#14532d] {
+.bg-emerald-800, [class*="bg-[#064e3b]"], .bg-emerald-900, [class*="bg-[#14532d]"] {
   background-color: var(--accent) !important;
   color: #ffffff !important;
 }
@@ -149,7 +149,7 @@
   background-color: #008c4a !important;
 }
 
-.text-[#064e3b], .text-emerald-800, .text-emerald-850, .text-emerald-900, .text-emerald-750 {
+[class*="text-[#064e3b]"], .text-emerald-800, .text-emerald-850, .text-emerald-900, .text-emerald-750 {
   color: var(--accent-text) !important;
 }
 
