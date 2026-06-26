@@ -5,7 +5,7 @@ import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const proxyTarget = env.VITE_DEV_API_PROXY || 'http://localhost:4000';
+  const proxyTarget = env.VITE_DEV_API_PROXY || 'http://backend_laravel.test';
 
   return {
     plugins: [react(), tailwindcss()],
@@ -21,10 +21,16 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: proxyTarget,
           changeOrigin: true,
+          secure: false,
+          timeout: 120_000,
+          proxyTimeout: 120_000,
         },
         '/uploads': {
           target: proxyTarget,
           changeOrigin: true,
+          secure: false,
+          timeout: 120_000,
+          proxyTimeout: 120_000,
         },
       },
     },

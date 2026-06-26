@@ -2,24 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Admin;
+use App\Models\Banner;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (Admin::query()->count() === 0) {
+            Admin::query()->create([
+                'email' => env('ADMIN_EMAIL', 'admin@lotes.pe'),
+                'password_hash' => Hash::make(env('ADMIN_PASSWORD', 'admin123')),
+            ]);
+            $this->command?->info('Admin inicial creado.');
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        if (Banner::query()->count() === 0) {
+            $this->call(CmsContentSeeder::class);
+        } else {
+            $this->command?->info('La base ya tiene datos CMS; seed omitido.');
+        }
     }
 }

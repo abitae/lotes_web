@@ -142,8 +142,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const loadPublicData = useCallback(async () => {
+    // Proyectos primero (más lento: consulta catálogo externo)
+    try {
+      const projectList = await api.getProjects();
+      if (Array.isArray(projectList)) {
+        setProjects(projectList);
+      } else {
+        setProjects([]);
+        setError("El catálogo de proyectos devolvió un formato inesperado");
+      }
+    } catch (err) {
+      setProjects([]);
+      const message =
+        err instanceof Error ? err.message : "No se pudo cargar el catálogo de proyectos";
+      setError(message);
+    }
+
     const results = await Promise.allSettled([
-      api.getProjects(),
       api.getBanners(),
       api.getTestimonials(),
       api.getSiteSettings(),
@@ -155,21 +170,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       api.getHomeAlert(),
     ]);
 
-    if (results[0].status === "fulfilled") setProjects(results[0].value);
-    if (results[1].status === "fulfilled") setBanners(results[1].value);
-    if (results[2].status === "fulfilled") setTestimonials(results[2].value);
-    if (results[3].status === "fulfilled") setSiteSettings(results[3].value);
-    if (results[4].status === "fulfilled") setGuarantees(results[4].value);
-    if (results[5].status === "fulfilled") setContactForms(results[5].value);
-    if (results[6].status === "fulfilled") setChannels(results[6].value);
-    if (results[7].status === "fulfilled") setFaqs(results[7].value);
-    if (results[8].status === "fulfilled") setAbout(results[8].value);
-    if (results[9].status === "fulfilled") setHomeAlert(results[9].value);
-
-    const failed = results.filter((r) => r.status === "rejected");
-    if (failed.length === results.length) {
-      throw new Error("Error al cargar datos del portal");
-    }
+    if (results[0].status === "fulfilled") setBanners(results[0].value);
+    if (results[1].status === "fulfilled") setTestimonials(results[1].value);
+    if (results[2].status === "fulfilled") setSiteSettings(results[2].value);
+    if (results[3].status === "fulfilled") setGuarantees(results[3].value);
+    if (results[4].status === "fulfilled") setContactForms(results[4].value);
+    if (results[5].status === "fulfilled") setChannels(results[5].value);
+    if (results[6].status === "fulfilled") setFaqs(results[6].value);
+    if (results[7].status === "fulfilled") setAbout(results[7].value);
+    if (results[8].status === "fulfilled") setHomeAlert(results[8].value);
   }, []);
 
   const loadAdminData = useCallback(async () => {

@@ -277,12 +277,13 @@ export const Catalog: React.FC = () => {
                 }`}
               >
                 {filteredProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    layout={viewMode}
-                    variant="catalog"
-                  />
+                  <React.Fragment key={project.id}>
+                    <ProjectCard
+                      project={project}
+                      layout={viewMode}
+                      variant="catalog"
+                    />
+                  </React.Fragment>
                 ))}
               </div>
             )}

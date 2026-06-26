@@ -62,19 +62,31 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     return undefined as T;
   }
 
-  let payload: { error?: string } = {};
   const text = await response.text();
+  let data: unknown = undefined;
+
   if (text) {
     try {
-      payload = JSON.parse(text) as { error?: string };
+      data = JSON.parse(text) as unknown;
     } catch {
-      payload = { error: text };
+      if (!response.ok) {
+        throw new ApiError(response.status, text || response.statusText);
+      }
+      throw new ApiError(response.status, "Respuesta inválida del servidor");
     }
   }
 
   if (!response.ok) {
-    throw new ApiError(response.status, payload.error || response.statusText);
+    const message =
+      data &&
+      typeof data === "object" &&
+      !Array.isArray(data) &&
+      "error" in data &&
+      typeof (data as { error?: unknown }).error === "string"
+        ? (data as { error: string }).error
+        : response.statusText;
+    throw new ApiError(response.status, message);
   }
 
-  return payload as T;
+  return data as T;
 }
