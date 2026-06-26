@@ -282,8 +282,8 @@ export async function seedHomeAlertIfEmpty(): Promise<boolean> {
 export async function ensureHomeAlertTable(): Promise<void> {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS home_alert_modal (
-      id          SMALLINT PRIMARY KEY DEFAULT 1,
-      is_enabled  BOOLEAN NOT NULL DEFAULT FALSE,
+      id          SMALLINT PRIMARY KEY,
+      is_enabled  TINYINT(1) NOT NULL DEFAULT 0,
       title       VARCHAR(255) NOT NULL DEFAULT '',
       description TEXT NOT NULL,
       image_url   TEXT NULL,
@@ -303,7 +303,7 @@ export async function ensureHomeAlertVideoColumn(): Promise<void> {
   const [cols] = await pool.query(
     `SELECT column_name
      FROM information_schema.columns
-     WHERE table_schema = current_schema()
+       WHERE table_schema = DATABASE()
        AND table_name = 'home_alert_modal'
        AND column_name = 'video_url'`
   );
@@ -316,7 +316,7 @@ export async function ensureAboutHeroBackgroundColumn(): Promise<void> {
   const [cols] = await pool.query(
     `SELECT column_name
      FROM information_schema.columns
-     WHERE table_schema = current_schema()
+       WHERE table_schema = DATABASE()
        AND table_name = 'about_page'
        AND column_name = 'hero_background_image_url'`
   );

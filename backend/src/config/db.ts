@@ -1,32 +1,25 @@
-import pg from "pg";
+import mysql, { type ExecuteValues } from "mysql2/promise";
 
-const pgPool = new pg.Pool({
+const mysqlPool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || "postgres",
+  port: Number(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "lotes_web",
-  max: 10,
+  database: process.env.DB_NAME || "lotes_web_backend",
+  waitForConnections: true,
+  connectionLimit: 10,
 });
 
 type QueryMeta = {
   affectedRows: number;
 };
 
-function toPgPlaceholders(sql: string, params: unknown[]): { text: string; values: unknown[] } {
-  if (params.length === 0) {
-    return { text: sql, values: [] };
-  }
+// Filas devueltas por mysql2 (forma depende de la consulta)
+type QueryRow = Record<string, any>;
 
-  let index = 0;
-  const text = sql.replace(/\?/g, () => `$${++index}`);
-
-  return { text, values: params };
-}
-
-function normalizeRows(rows: pg.QueryResultRow[]): pg.QueryResultRow[] {
+function normalizeRows(rows: QueryRow[]): QueryRow[] {
   return rows.map((row) => {
-    if ("count" in row && typeof row.count === "string") {
+    if ("count" in row && (typeof row.count === "string" || typeof row.count === "bigint")) {
       return { ...row, count: Number(row.count) };
     }
 
@@ -37,18 +30,18 @@ function normalizeRows(rows: pg.QueryResultRow[]): pg.QueryResultRow[] {
 async function query(
   sql: string,
   params?: unknown[],
-): Promise<[pg.QueryResultRow[], QueryMeta]> {
-  const values = params ?? [];
-  const { text, values: pgValues } = toPgPlaceholders(sql, values);
-  const result = await pgPool.query(text, pgValues);
+): Promise<[QueryRow[], QueryMeta]> {
+  const [rows, result] = await mysqlPool.execute(sql, (params ?? []) as ExecuteValues);
+  const rowList = Array.isArray(rows) ? (rows as QueryRow[]) : [];
+  const affectedRows =
+    result && typeof result === "object" && "affectedRows" in result
+      ? Number((result as { affectedRows: number }).affectedRows)
+      : 0;
 
-  return [
-    normalizeRows(result.rows),
-    { affectedRows: result.rowCount ?? 0 },
-  ];
+  return [normalizeRows(rowList), { affectedRows }];
 }
 
 export const pool = {
   query,
-  end: () => pgPool.end(),
+  end: () => mysqlPool.end(),
 };

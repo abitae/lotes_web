@@ -109,7 +109,7 @@ const INITIAL_INQUIRIES = [
   },
 ];
 
-function toPgTimestamp(iso: string): string {
+function toMysqlTimestamp(iso: string): string {
   return iso.replace("T", " ").replace(/\.\d{3}Z$/, "");
 }
 
@@ -165,7 +165,7 @@ async function seed() {
     await pool.query(
       `INSERT INTO inquiries (id, full_name, phone, email, project_interest, message, status, notes, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [i.id, i.fullName, i.phone, i.email, i.projectInterest, i.message, i.status, i.notes, toPgTimestamp(i.createdAt)]
+      [i.id, i.fullName, i.phone, i.email, i.projectInterest, i.message, i.status, i.notes, toMysqlTimestamp(i.createdAt)]
     );
   }
 
