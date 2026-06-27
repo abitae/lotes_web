@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class HealthReportService
 {
@@ -25,7 +26,7 @@ class HealthReportService
         }
 
         $start = defined('LARAVEL_START') ? LARAVEL_START : (float) ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true));
-        $uploadDir = storage_path('app/public/uploads');
+        $uploadDir = Storage::disk(config('filesystems.default'))->path('uploads');
 
         return [
             'ok' => $dbOk,

@@ -38,9 +38,12 @@ class UploadController extends Controller
         $filename = time().'-'.random_int(0, 999999).($ext ? ".{$ext}" : '');
         $path = 'uploads/'.$filename;
 
-        Storage::disk('public')->putFileAs('uploads', $file, $filename);
+        $diskName = config('filesystems.default');
+        $disk = Storage::disk($diskName);
 
-        $url = Storage::disk('public')->url($path);
+        $disk->putFileAs('uploads', $file, $filename);
+
+        $url = $disk->url($path);
 
         return response()->json([
             'url' => $url,

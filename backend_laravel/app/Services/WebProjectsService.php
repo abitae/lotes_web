@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\AppException;
 use App\Support\MapWebProject;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 class WebProjectsService
@@ -115,7 +116,7 @@ class WebProjectsService
             return $response->json();
         } catch (AppException $e) {
             throw $e;
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+        } catch (ConnectionException $e) {
             throw new AppException(504, 'Tiempo de espera agotado al consultar el catálogo externo');
         } catch (\Throwable $e) {
             throw new AppException(502, 'No se pudo conectar con el catálogo externo');
