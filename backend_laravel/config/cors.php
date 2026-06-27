@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'uploads/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'storage/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     'allowed_origins' => array_filter([env('CORS_ORIGIN', 'http://localhost:3000')]),
     'allowed_origins_patterns' => [],

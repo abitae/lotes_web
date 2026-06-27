@@ -1,6 +1,0 @@
-{
-  "name": "Lotes en Remate - Portal de Inversiones",
-  "description": "Portal inmobiliario de remate de lotes y terrenos en Perú, con panel de administración para gestión de proyectos, leads y multimedia en tiempo real.",
-  "requestFramePermissions": ["geolocation"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

@@ -1,61 +1,80 @@
-# API Laravel — Lotes en Remate
+# Lotes en Remate — Laravel + React (monolito)
 
-Backend PHP (Laravel 13) compatible con el frontend React. Reemplaza `lotes_web/backend` (Node.js).
+Aplicación Laravel 13 con SPA React embebida (`resources/js/`) y API JSON bajo `/api`.
 
 ## Requisitos
 
 - PHP 8.3+
 - Composer
+- Node.js 20+
 - MySQL (`lotes_web_backend`)
 
-## Configuración local (Laravel Herd)
-
-URL del API: **https://backend_laravel.test**
-
-1. Enlaza el proyecto en Herd (carpeta `backend_laravel`)
-2. `.env`: `APP_URL=https://backend_laravel.test`
-3. Visita https://backend_laravel.test — verás la consola de estado del sistema
-4. API JSON: https://backend_laravel.test/api/health?format=json
-
-Frontend con Vite (`frontend/.env`):
-
-```env
-VITE_API_URL=/api
-VITE_DEV_API_PROXY=https://backend_laravel.test
-```
-
-## Configuración local (artisan serve)
+## Desarrollo local
 
 ```bash
-php artisan serve --port=8000
+cd backend_laravel
+composer install
+cp .env.example .env   # si no existe
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+npm install
+composer run dev
 ```
 
-Variables importantes en `.env`:
+Abre **http://localhost:8000** — la SPA React y la API comparten el mismo origen (`VITE_API_URL=/api`).
+
+Consola de estado del sistema (antes en `/`): **http://localhost:8000/system**
+
+API JSON: **http://localhost:8000/api/health?format=json**
+
+## Variables `.env` importantes
 
 ```env
-DB_DATABASE=lotes_web_backend
-CORS_ORIGIN=http://localhost:3000
-API_BASE_URL=http://localhost:8000
+APP_URL=http://localhost:8000
+FILESYSTEM_DISK=public
 WEB_API_BASE_URL=https://inmopro.laravel.cloud
 WEB_API_TIPO_WEB=lotesenremate.pe
+
+VITE_API_URL=/api
+VITE_AUTH_STORAGE_KEY=lotes_auth_token
+VITE_AUTH_EMAIL_KEY=lotes_admin_email
+VITE_THEME_STORAGE_KEY=lotes_theme
 ```
 
-Frontend (`.env`):
+## Uploads CMS
 
-```env
-VITE_API_URL=http://localhost:8000/api
+Los archivos subidos desde el panel admin se guardan en `storage/app/public/uploads/` y se sirven en `/storage/uploads/...` (symlink `public/storage`).
+
+## Build producción
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci && npm run build
+php artisan migrate --force
+php artisan storage:link --force
+php artisan config:cache
+php artisan route:cache
 ```
 
-## Endpoints
+## Despliegue Banahosting (monolito)
 
-Todos bajo `/api` — ver `routes/api.php`. Autenticación admin con **Sanctum** (`POST /api/auth/login` → Bearer token).
+- Document Root → `public/` del proyecto Laravel
+- Un solo dominio (ej. `https://lotesenremate.pe`)
+- PHP 8.3+, extensiones estándar Laravel
+- Permisos `775` en `storage/` y `bootstrap/cache/`
+- Ejecutar `php artisan storage:link` en el servidor
 
-## Despliegue cPanel
+## API
 
-Ver [DEPLOY-CPANEL.md](../DEPLOY-CPANEL.md) (sección Laravel API).
+Todos los endpoints bajo `/api` — ver `routes/api.php`. Auth admin con **Sanctum** (`POST /api/auth/login` → Bearer token).
 
 ## Tests
 
 ```bash
 php artisan test --filter=Api
 ```
+
+## Frontend legacy
+
+La carpeta `../frontend/` quedó deprecada; el código activo está en `resources/js/`.

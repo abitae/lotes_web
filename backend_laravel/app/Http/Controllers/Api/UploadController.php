@@ -6,6 +6,7 @@ use App\Exceptions\AppException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
@@ -35,15 +36,11 @@ class UploadController extends Controller
 
         $ext = $file->getClientOriginalExtension();
         $filename = time().'-'.random_int(0, 999999).($ext ? ".{$ext}" : '');
-        $uploadDir = public_path('uploads');
-        if (! is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
+        $path = 'uploads/'.$filename;
 
-        $file->move($uploadDir, $filename);
+        Storage::disk('public')->putFileAs('uploads', $file, $filename);
 
-        $baseUrl = rtrim(env('API_BASE_URL', config('app.url')), '/');
-        $url = "{$baseUrl}/uploads/{$filename}";
+        $url = Storage::disk('public')->url($path);
 
         return response()->json([
             'url' => $url,

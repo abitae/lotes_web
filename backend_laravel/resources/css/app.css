@@ -1,9 +1,556 @@
-@import 'tailwindcss';
-
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../js/**/*.tsx';
+@source '../js/**/*.ts';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --bg: #f8f7f4;
+  --card-bg: #ffffff;
+  --border: #d4d4d8;
+  --text-p: #18181b;
+  --text-s: #3f3f46;
+  --text-muted: #52525b;
+  --accent: #008f4a;
+  --accent-text: #047857;
+  --success: #16a34a;
+}
+
+.dark {
+  --bg: #09090b;
+  --card-bg: #18181b;
+  --border: #27272a;
+  --text-p: #fafafa;
+  --text-s: #a1a1aa;
+  --text-muted: #71717a;
+  --accent: #00b05b;
+  --accent-text: #34d399;
+  --success: #22c55e;
+}
+
+/* Base style refinements for crisp rendering */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg);
+    color: var(--text-p);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  body {
+    background-color: var(--bg);
+    color: var(--text-p);
+    transition: background-color 0.2s ease, color 0.15s ease;
+  }
+}
+
+/* Custom scrollbar to match the high-end industrial tech feel */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* High Density Aesthetic Overrides */
+.premium-card-shadow {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.dark .premium-card-shadow {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.premium-card-hover {
+  transition: all 0.15s ease-in-out;
+  border-width: 1px;
+  border-color: var(--border);
+}
+
+.premium-card-hover:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .premium-card-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Apply unified mode style mappings for any existing templates & administrative sections */
+.bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.bg-stone-50, .bg-stone-100, .bg-stone-200 {
+  background-color: var(--card-bg) !important;
+}
+
+/* Page Backgrounds / Inputs / Tables inside admin panel */
+.bg-stone-950, .bg-stone-955, .bg-stone-950\/30, .bg-emerald-950, .bg-stone-150, .bg-stone-900 input, .bg-stone-950 input, .bg-stone-900 select, .bg-stone-950 select {
+  background-color: var(--bg) !important;
+}
+
+/* Cards & Elevated Containers inside admin panel */
+.bg-stone-900, .bg-stone-850, .bg-stone-850\/60, [class*="bg-[#18181b]"] {
+  background-color: var(--card-bg) !important;
+}
+
+/* Row Hover on Admin tables */
+.hover\:bg-stone-850\/40:hover {
+  background-color: var(--bg) !important;
+}
+
+/* Primary text colors (includes strong tags, panel text labels, and title headings) */
+.text-stone-50, .text-stone-100, .text-stone-200, .text-stone-300, [class*="text-[#fafafa]"], .text-stone-900, .text-stone-950, .text-emerald-950, .text-stone-800, .text-stone-850, .text-stone-900\/90 {
+  color: var(--text-p) !important;
+}
+
+/* Secondary & Subtitle Text colors */
+.text-stone-400, .text-stone-500, .text-stone-600, .text-stone-550, [class*="text-[#a1a1aa]"] {
+  color: var(--text-muted) !important;
+}
+
+.text-stone-700 {
+  color: var(--text-s) !important;
+}
+
+.dark .text-stone-400, .dark .text-stone-500, .dark .text-stone-600, .dark .text-stone-550, .dark .text-stone-700 {
+  color: var(--text-s) !important;
+}
+
+/* Borders & Separators */
+.border-stone-200, .border-stone-100, .border-stone-200\/80, .border-stone-300, .border-stone-800, .border-stone-855, .border-stone-850, [class*="border-[#27272a]"] {
+  border-color: var(--border) !important;
+}
+
+/* Active buttons map to clean steel blue and hover states */
+.bg-emerald-800, [class*="bg-[#064e3b]"], .bg-emerald-900, [class*="bg-[#14532d]"] {
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+}
+
+.hover\:bg-emerald-850:hover, .hover\:bg-emerald-900:hover, .hover\:bg-emerald-750:hover, .hover\:bg-emerald-650:hover {
+  background-color: #008c4a !important;
+}
+
+[class*="text-[#064e3b]"], .text-emerald-800, .text-emerald-850, .text-emerald-900, .text-emerald-750 {
+  color: var(--accent-text) !important;
+}
+
+.text-amber-700, .text-amber-705, .text-amber-600 {
+  color: #b45309 !important;
+}
+
+.dark .text-amber-700, .dark .text-amber-705, .dark .text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+/* Dark emerald CTA surfaces — keep legible in light theme (admin remaps break emerald/stone utilities) */
+.surface-dark-emerald {
+  background-color: #064e3b !important;
+  color: #ffffff;
+}
+
+.surface-dark-emerald .text-on-dark-muted {
+  color: #d1d5db !important;
+}
+
+.surface-dark-emerald .text-on-dark-subtle {
+  color: #e7e5e4 !important;
+}
+
+.surface-dark-emerald .border-on-dark {
+  border-color: #065f46 !important;
+}
+
+/* Inicio — Garantías de Compra (alto contraste sobre fondo verde oscuro) */
+.home-guarantees-section {
+  background-color: #022c22;
+}
+
+.home-guarantees-card {
+  background: linear-gradient(
+    145deg,
+    rgb(255 255 255 / 0.14) 0%,
+    rgb(255 255 255 / 0.06) 100%
+  );
+  border: 1px solid rgb(255 255 255 / 0.22);
+  box-shadow:
+    0 4px 24px rgb(0 0 0 / 0.25),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.home-guarantees-card:hover {
+  border-color: rgb(52 211 153 / 0.55);
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(52 211 153 / 0.2);
+}
+
+.home-guarantees-icon {
+  background: linear-gradient(135deg, rgb(16 185 129 / 0.35), rgb(5 150 105 / 0.2));
+  border: 1px solid rgb(110 231 183 / 0.45);
+  color: #ecfdf5;
+}
+
+/* Inicio — sección formulario (base verde completa) */
+.home-contact-section {
+  background-color: #022c22;
+  color: #ffffff;
+  isolation: isolate;
+}
+
+.home-contact-section__base {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    #011a14 0%,
+    #022c22 22%,
+    #064e3b 48%,
+    #047857 78%,
+    #059669 100%
+  );
+}
+
+.home-contact-section__photo {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+  background-size: cover;
+  background-position: center 35%;
+  mix-blend-mode: overlay;
+}
+
+.home-contact-section__photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgb(2 44 34 / 0.92) 0%,
+    rgb(6 78 59 / 0.75) 38%,
+    rgb(4 120 87 / 0.55) 68%,
+    rgb(5 150 105 / 0.45) 100%
+  );
+}
+
+.home-contact-section__glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.home-contact-section__glow--left {
+  width: min(520px, 70vw);
+  height: min(520px, 70vw);
+  left: -12%;
+  bottom: -18%;
+  background: rgb(16 185 129 / 0.45);
+}
+
+.home-contact-section__glow--right {
+  width: min(420px, 55vw);
+  height: min(420px, 55vw);
+  right: -8%;
+  top: -12%;
+  background: rgb(251 191 36 / 0.18);
+}
+
+.home-contact-section__glow--center {
+  width: min(640px, 90vw);
+  height: min(320px, 40vw);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgb(5 150 105 / 0.22);
+}
+
+.home-contact-section__mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 85%, rgb(52 211 153 / 0.28), transparent 58%),
+    radial-gradient(ellipse 70% 55% at 88% 12%, rgb(253 224 71 / 0.14), transparent 52%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgb(255 255 255 / 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+.home-contact-section__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 30%, transparent 100%);
+  pointer-events: none;
+}
+
+.home-contact-section__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.04) 42%,
+    transparent 58%
+  );
+  pointer-events: none;
+}
+
+.home-contact-form-card {
+  position: relative;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fdfb 55%, #f0faf6 100%);
+  border: 1px solid rgb(255 255 255 / 0.92);
+  box-shadow:
+    0 32px 64px rgb(0 0 0 / 0.28),
+    0 0 0 1px rgb(6 78 59 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.95);
+}
+
+.home-contact-form-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    145deg,
+    rgb(110 231 183 / 0.65) 0%,
+    rgb(255 255 255 / 0.35) 35%,
+    rgb(5 150 105 / 0.25) 100%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+.home-contact-form-card__header-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 1rem 1rem 0 0;
+  background: linear-gradient(90deg, #047857, #10b981, #34d399, #059669);
+}
+
+.home-contact-form-card .home-form-input {
+  background-color: #f8faf9;
+  border: 1.5px solid #d1d5db;
+  color: #14532d;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.home-contact-form-card .home-form-input::placeholder {
+  color: #6b7280;
+}
+
+.home-contact-form-card .home-form-input:hover {
+  border-color: #86efac;
+  background-color: #ffffff;
+}
+
+.home-contact-form-card .home-form-input:focus {
+  border-color: #059669;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 0.22);
+  outline: none;
+}
+
+.home-contact-form-card .home-form-label {
+  color: #065f46;
+  font-weight: 700;
+}
+
+.home-contact-submit {
+  background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+  box-shadow: 0 4px 14px rgb(4 120 87 / 0.45);
+}
+
+.home-contact-submit:hover {
+  background: linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%);
+  box-shadow: 0 6px 20px rgb(4 120 87 / 0.55);
+  transform: translateY(-1px);
+}
+
+/* Public pages: legible body copy on light backgrounds */
+:root .text-stone-500 {
+  color: var(--text-s) !important;
+}
+
+/* Hero banner — imagen de fondo visible + lectura en columna de texto */
+.hero-banner-bg-image {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.hero-banner-scrim {
+  /* Velo suave solo en la zona del texto; la derecha deja ver la foto */
+  background: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 28%,
+    color-mix(in srgb, var(--bg) 42%, transparent) 48%,
+    color-mix(in srgb, var(--bg) 18%, transparent) 62%,
+    transparent 78%
+  );
+}
+
+.hero-banner-scrim-vertical {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 25%, transparent) 0%,
+    transparent 35%,
+    color-mix(in srgb, var(--bg) 45%, transparent) 88%,
+    color-mix(in srgb, var(--bg) 75%, transparent) 100%
+  );
+}
+
+.hero-banner-content-panel {
+  background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  box-shadow: 0 8px 32px color-mix(in srgb, #000000 8%, transparent);
+}
+
+.dark .hero-banner-content-panel {
+  background: color-mix(in srgb, var(--card-bg) 58%, transparent);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+}
+
+.hero-banner-title {
+  color: var(--text-p);
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--bg) 85%, transparent),
+    0 2px 12px color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+.dark .hero-banner-title {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.75),
+    0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.hero-banner-subtitle {
+  color: var(--text-p);
+  opacity: 0.9;
+}
+
+.dark .hero-banner-subtitle {
+  opacity: 0.92;
+}
+
+.hero-banner-badge {
+  background-color: var(--accent);
+  color: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, #000000 30%);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.hero-banner-controls {
+  background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 12px color-mix(in srgb, #000000 12%, transparent);
+}
+
+.dark .hero-banner-controls {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* Tarjetas de proyecto — clic en toda la superficie */
+.project-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+}
+
+.project-card--home:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.project-card--catalog:hover {
+  border-color: color-mix(in srgb, #047857 40%, #d4d4d8);
+}
+
+/* Hero Nosotros — fondo con imagen y texto centrado legible */
+.about-hero-scrim {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 35%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 45%,
+    color-mix(in srgb, var(--bg) 78%, transparent) 100%
+  );
+}
+
+/* Carruseles infinitos (proyectos en inicio, asesores en /about) */
+.infinite-marquee-track,
+.expert-advisors-marquee-track {
+  animation: infinite-marquee-scroll var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.infinite-marquee-track:hover,
+.expert-advisors-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes infinite-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-1 * var(--marquee-shift, 50%)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .infinite-marquee-track,
+  .expert-advisors-marquee-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  #expert-advisors-carousel .pointer-events-none,
+  #home-projects-carousel .pointer-events-none {
+    display: none;
+  }
 }
